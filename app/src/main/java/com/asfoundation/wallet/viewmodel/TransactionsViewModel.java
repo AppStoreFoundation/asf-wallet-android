@@ -29,6 +29,7 @@ import com.asfoundation.wallet.transactions.TransactionsMapper;
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
 import java.util.List;
+import java.util.Map;
 
 public class TransactionsViewModel extends BaseViewModel {
   private static final long GET_BALANCE_INTERVAL = 10 * DateUtils.SECOND_IN_MILLIS;
@@ -36,7 +37,7 @@ public class TransactionsViewModel extends BaseViewModel {
   private final MutableLiveData<NetworkInfo> defaultNetwork = new MutableLiveData<>();
   private final MutableLiveData<Wallet> defaultWallet = new MutableLiveData<>();
   private final MutableLiveData<List<Transaction>> transactions = new MutableLiveData<>();
-  private final MutableLiveData<String> defaultWalletBalance = new MutableLiveData<>();
+  private final MutableLiveData<Map<String, String>> defaultWalletBalance = new MutableLiveData<>();
   private final FindDefaultNetworkInteract findDefaultNetworkInteract;
   private final FindDefaultWalletInteract findDefaultWalletInteract;
   private final FetchTransactionsInteract fetchTransactionsInteract;
@@ -104,7 +105,7 @@ public class TransactionsViewModel extends BaseViewModel {
     return transactions;
   }
 
-  public MutableLiveData<String> defaultWalletBalance() {
+  public MutableLiveData<Map<String, String>> defaultWalletBalance() {
     return defaultWalletBalance;
   }
 
