@@ -55,6 +55,11 @@ import com.asfoundation.wallet.service.AccountKeystoreService;
 import com.asfoundation.wallet.service.RealmManager;
 import com.asfoundation.wallet.service.TickerService;
 import com.asfoundation.wallet.service.TrustWalletTickerService;
+import com.asfoundation.wallet.tokenswap.SwapBlockchainWriter;
+import com.asfoundation.wallet.tokenswap.SwapDataMapper;
+import com.asfoundation.wallet.tokenswap.SwapInteractor;
+import com.asfoundation.wallet.tokenswap.SwapProofWriter;
+import com.asfoundation.wallet.tokenswap.SwapTransactionFactory;
 import com.asfoundation.wallet.ui.AppcoinsApps;
 import com.asfoundation.wallet.ui.airdrop.AirdropChainIdMapper;
 import com.asfoundation.wallet.ui.airdrop.AirdropInteractor;
@@ -255,8 +260,9 @@ import static com.asfoundation.wallet.AirdropService.BASE_URL;
 
   @Singleton @Provides AppCoinsAddressProxySdk provideAdsContractAddressSdk(
       Web3jProvider web3jProvider, FindDefaultWalletInteract findDefaultWalletInteract) {
-    return new AppCoinsAddressProxyBuilder().createAddressProxySdk(() -> findDefaultWalletInteract.find()
-        .map(wallet -> wallet.address), web3jProvider::get);
+    return new AppCoinsAddressProxyBuilder().createAddressProxySdk(
+        () -> findDefaultWalletInteract.find()
+            .map(wallet -> wallet.address), web3jProvider::get);
   }
 
   @Singleton @Provides HashCalculator provideHashCalculator(Calculator calculator) {
@@ -342,5 +348,22 @@ import static com.asfoundation.wallet.AirdropService.BASE_URL;
         .create(ApplicationsApi.class);
     return new AppcoinsApps(new Applications.Builder().setApi(appsApi)
         .build());
+  }
+
+  @Singleton @Provides SwapTransactionFactory provideSwapTransactionFactory(
+      Web3jProvider web3jProvider, EthereumNetworkRepositoryType networkRepositoryType,
+      AppCoinsAddressProxySdk adsContractAddressProvider, WalletRepositoryType walletRepositoryType,
+      PasswordStore passwordStore, AccountKeystoreService accountKeystoreService) {
+    return new SwapTransactionFactory(web3jProvider, networkRepositoryType,
+        adsContractAddressProvider, walletRepositoryType, passwordStore, accountKeystoreService);
+  }
+
+  @Singleton @Provides SwapProofWriter provideSwapBlockChainWriter(Web3jProvider web3jProvider,
+      SwapTransactionFactory swapTransactionFactory) {
+    return new SwapBlockchainWriter(web3jProvider, swapTransactionFactory, new SwapDataMapper());
+  }
+
+  @Singleton @Provides SwapInteractor provideSwapInteractor(SwapProofWriter swapBlockchainWriter) {
+    return new SwapInteractor(swapBlockchainWriter, new SwapDataMapper());
   }
 }

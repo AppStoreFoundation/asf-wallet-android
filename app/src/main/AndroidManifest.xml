@@ -117,5 +117,8 @@
       </intent-filter>
     </receiver>
 
+    <activity
+        android:name="com.asfoundation.wallet.tokenswap.SwapEtherToTokenActivity"
+        android:label="SwappMock1Activity"/>
   </application>
 </manifest>

@@ -297,4 +297,12 @@
   <string name="activity_airdrop_generic_error_message">An error has occurred</string>
   <string name="notification_generic_error">@string/unknown_error</string>
   <string name="spend_your_appcoins">Spend your AppCoins</string>
+
+
+  <!-- String related to swap feature -->
+  <string name="ether_amount">ETH (amount)</string>
+  <string name="appc_amount">APPC (amount)</string>
+  <string name="swap_button">Swap</string>
+  <string name="ether_title">ETH</string>
+  <string name="appc_title">APPC</string>
 </resources>

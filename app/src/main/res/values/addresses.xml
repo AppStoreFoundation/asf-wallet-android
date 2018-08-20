@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- KyberNetwork  Contract Addresses -->
+  <string name="MainNetKyberNetworkProxy">0x818E6FECD516Ecc3849DAf6845e3EC868087B755</string>
+  <string name="RopstenKyberNetworkProxy">0x818E6FECD516Ecc3849DAf6845e3EC868087B755</string>
+  <string name="KovanKyberNetworkProxy">0x7e6b8b9510D71BF8EF0f893902EbB9C865eEF4Df</string>
+
+  <string name="MainNetKyberNetwork">0x91a502C678605fbCe581eae053319747482276b9</string>
+  <string name="RopstenKyberNetwork">0x91a502C678605fbCe581eae053319747482276b9</string>
+  <string name="KovanKyberNetwork">0xF27dbBeA1856f18142cDD3B575146199f7f3a7eA</string>
+
+  <string name="MainKyberReserve">0x63825c174ab367968EC60f061753D3bbD36A0D8F</string>
+  <string name="RopstenKyberReserve">0xEB52Ce516a8d054A574905BDc3D4a176D3a2d51a</string>
+  <string name="KovanKyberReserve">0xcd2FC6Cf44aAC607771f7FBbE51E388CE1044408</string>
+
+  <string name="MainNetConversionRates">0x798AbDA6Cc246D0EDbA912092A2a3dBd3d11191B</string>
+  <string name="RopstenConversionRates">0xE16E257a25e287AF50C5651A4c2728b32D7e5ef7</string>
+  <string name="KovanConversionRates">0xEddEeC7f5da5df29722D3252FC542E77D115a378</string>
+
+  <string name="MainNetExpectedRate">0x721260010D6E40960032ac541c2a68A3731A1462</string>
+  <string name="RopstenExpectedRate">0xF40C50a36a709c55b76D4056964A11685676F2E4</string>
+  <string name="KovanExpectedRate">0xB9bCC9dC47e772d4C57526b28D8537325b9128c5</string>
+
+  <string name="MainNetFeeBurner">0xed4f53268bfdFF39B36E8786247bA3A02Cf34B04</string>
+  <string name="RopstenFeeBurner">0xed4f53268bfdFF39B36E8786247bA3A02Cf34B04</string>
+  <string name="KovanFeeBurner">0x742D26b77b28B785E56751c3B201De03CE4836EE</string>
+
+  <string name="MainNetSanityRates">0xdfc85C08d5e5924aB49750E006CF8a826ffb7B13</string>
+
+  <string name="MainNetWhiteList">0x6e106a75D369d09A9Ea1DCc16Da844792aA669a3</string>
+  <string name="RopstenWhiteList">0x0f69eA3FA0F1766f91cAca1962e2E85d6a7c20A6</string>
+  <string name="KovanWhiteList">0x40B4C521d52E744E0fB6DaEF72BE37D4E99E2D2A</string>
+
+
+  <!-- Token Addresses -->
+  <string name="MainNetEther">0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee</string>
+  <string name="RopstenEther">0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee</string>
+
+  <string name="MainNetAdEx">0x4470BB87d77b963A013DB939BE332f927f2b992e</string>
+  <string name="RopstenAdEx">0x499990DB50b34687CDaFb2C8DaBaE4E99d6F38A7</string>
+
+  <string name="MainNetAppCoins">0x1a7a8bd9106f2b8d977e08582dc7d24c723ab0db</string>
+  <string name="RopstenAppCoins">0x2799f05B55d56be756Ca01Af40Bf7350787F48d4</string>
+
+  <string name="MainNetAirSwap">0x27054b13b1b798b345b591a4d22e6562d47ea75a</string>
+  <string name="RopstenAirSwap">0xeF06F410C26a0fF87b3a43927459Cce99268a2eF</string>
+
+  <string name="MainNetBasicAttentionToken">0x0d8775f648430679a709e98d2b0cb6250d2887ef</string>
+  <string name="RopstenBasicAttentionToken">0xDb0040451F373949A4Be60dcd7b6B8D6E42658B6</string>
+
+  <string name="MainNetDai">0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359</string>
+  <string name="RopstenDai">0xaD6D458402F60fD3Bd25163575031ACDce07538D</string>
+
+  <string name="MainNetAelf">0xbf2179859fc6d5bee9bf9158632dc51678a4100e</string>
+  <string name="RopstenAelf">0x9Fcc27c7320703c43368cf1A4bf076402cd0D6B4</string>
+
+  <string name="MainNetEnigma">0xf0ee6b27b759c9893ce4f094b49ad28fd15a23e4</string>
+  <string name="RopstenEnigma">0x95cc8d8f29D0f7fcC425E8708893E759d1599c97</string>
+
+  <string name="MainNetEOS">0x86Fa049857E0209aa7D9e616F7eb3b3B78ECfdb0</string>
+  <string name="RopstenEOS">0xd5b4218B950A53fF07985E2d88346925c335EAe7</string>
+
+  <string name="MainNetEthos">0x5Af2Be193a6ABCa9c8817001F45744777Db30756</string>
+  <string name="RopstenEthos">0x9504A86A881F63Da06302FB3639d4582022097DB</string>
+
+  <string name="MainNetKNC">0xdd974D5C2e2928deA5F71b9825b8b646686BD200</string>
+  <string name="RopstenKNC">0x4E470dc7321E84CA96FcAEDD0C8aBCebbAEB68C6</string>
+
+
+  @array/tokensAvailableForSwap
+  <string-array name="tokensAvailableForSwap">
+    <item>ETHER</item>
+    <item>APPC</item>
+    <item>KNC</item>
+    <item>EOS</item>
+  </string-array>
+</resources>

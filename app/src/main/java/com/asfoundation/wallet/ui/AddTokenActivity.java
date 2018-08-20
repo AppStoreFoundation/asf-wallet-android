@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.asf.wallet.R;
 import com.asfoundation.wallet.entity.Address;
 import com.asfoundation.wallet.entity.ErrorEnvelope;
+import com.asfoundation.wallet.tokenswap.SwapEtherToTokenActivity;
 import com.asfoundation.wallet.viewmodel.AddTokenViewModel;
 import com.asfoundation.wallet.viewmodel.AddTokenViewModelFactory;
 import com.asfoundation.wallet.widget.SystemView;
@@ -80,7 +81,8 @@ public class AddTokenActivity extends BaseActivity implements View.OnClickListen
   @Override public void onClick(View v) {
     switch (v.getId()) {
       case R.id.save: {
-        onSave();
+        //onSave();
+        startActivity(SwapEtherToTokenActivity.newIntent(this));
       }
       break;
     }
