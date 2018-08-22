@@ -7,6 +7,7 @@ import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.Single;
 import io.reactivex.disposables.CompositeDisposable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,11 +21,13 @@ public class ProofOfAttentionService {
   private final Scheduler computationScheduler;
   private final BlockchainErrorMapper errorMapper;
   private final TaggedCompositeDisposable disposables;
+  private final CountryCodeProvider countryCodeProvider;
 
   public ProofOfAttentionService(Repository<String, Proof> cache, String walletPackage,
       HashCalculator hashCalculator, CompositeDisposable compositeDisposable,
       ProofWriter proofWriter, Scheduler computationScheduler, int maxNumberProofComponents,
-      BlockchainErrorMapper errorMapper, TaggedCompositeDisposable disposables) {
+      BlockchainErrorMapper errorMapper, TaggedCompositeDisposable disposables,
+      CountryCodeProvider countryCodeProvider) {
     this.cache = cache;
     this.walletPackage = walletPackage;
     this.hashCalculator = hashCalculator;
@@ -34,6 +37,7 @@ public class ProofOfAttentionService {
     this.maxNumberProofComponents = maxNumberProofComponents;
     this.errorMapper = errorMapper;
     this.disposables = disposables;
+    this.countryCodeProvider = countryCodeProvider;
   }
 
   public void start() {
@@ -44,6 +48,24 @@ public class ProofOfAttentionService {
                 disposable -> updateProofStatus(proof.getPackageName(), ProofStatus.SUBMITTING)))
         .retry()
         .subscribe());
+
+    compositeDisposable.add(getReadyCountryCode().observeOn(computationScheduler)
+        .flatMapSingle(proof -> countryCodeProvider.getCountryCode()
+            .doOnSuccess(countryCode -> setCountryCodeSync(proof.getPackageName(), countryCode))
+            .doOnError(throwable -> handleError(throwable, proof.getPackageName())))
+        .retry()
+        .subscribe());
+  }
+
+  private void setCountryCodeSync(String packageName, String countryCode) {
+    synchronized (this) {
+      Proof proof = getPreviousProofSync(packageName);
+      cache.saveSync(packageName,
+          new Proof(packageName, proof.getCampaignId(), proof.getProofComponentList(),
+              walletPackage, ProofStatus.PROCESSING, proof.getChainId(), proof.getOemAddress(),
+              proof.getStoreAddress(), proof.getGasPrice(), proof.getGasLimit(), proof.getHash(),
+              countryCode));
+    }
   }
 
   private void handleError(Throwable throwable, String proofPackageName) {
@@ -76,13 +98,13 @@ public class ProofOfAttentionService {
         new Proof(proof.getPackageName(), proof.getCampaignId(), proof.getProofComponentList(),
             proof.getWalletPackage(), ProofStatus.SUBMITTING, proof.getChainId(),
             proof.getOemAddress(), proof.getStoreAddress(), proof.getGasPrice(),
-            proof.getGasLimit());
+            proof.getGasLimit(), proof.getHash(), proof.getCountryCode());
     return proofWriter.writeProof(completedProof)
         .doOnSuccess(hash -> cache.saveSync(completedProof.getPackageName(),
             new Proof(completedProof.getPackageName(), completedProof.getCampaignId(),
                 completedProof.getProofComponentList(), walletPackage, ProofStatus.COMPLETED,
                 proof.getChainId(), proof.getOemAddress(), proof.getStoreAddress(),
-                proof.getGasPrice(), proof.getGasLimit(), hash)));
+                proof.getGasPrice(), proof.getGasLimit(), hash, proof.getCountryCode())));
   }
 
   public void stop() {
@@ -103,13 +125,13 @@ public class ProofOfAttentionService {
       cache.saveSync(packageName,
           new Proof(packageName, campaignId, proof.getProofComponentList(), walletPackage,
               ProofStatus.PROCESSING, proof.getChainId(), proof.getOemAddress(),
-              proof.getStoreAddress(), proof.getGasPrice(), proof.getGasLimit()));
+              proof.getStoreAddress(), proof.getGasPrice(), proof.getGasLimit(), proof.getHash(),
+              proof.getCountryCode()));
     }
   }
 
   public void setChainId(String packageName, int chainId) {
     disposables.add(packageName, Completable.fromAction(() -> setChainIdSync(packageName, chainId))
-        .subscribeOn(computationScheduler)
         .subscribe());
   }
 
@@ -119,7 +141,8 @@ public class ProofOfAttentionService {
       cache.saveSync(packageName,
           new Proof(packageName, proof.getCampaignId(), proof.getProofComponentList(),
               walletPackage, ProofStatus.PROCESSING, chainId, proof.getOemAddress(),
-              proof.getStoreAddress(), proof.getGasPrice(), proof.getGasLimit()));
+              proof.getStoreAddress(), proof.getGasPrice(), proof.getGasLimit(), proof.getHash(),
+              proof.getCountryCode()));
     }
   }
 
@@ -129,7 +152,8 @@ public class ProofOfAttentionService {
       cache.saveSync(packageName,
           new Proof(packageName, proof.getCampaignId(), proof.getProofComponentList(),
               walletPackage, proofStatus, proof.getChainId(), proof.getOemAddress(),
-              proof.getStoreAddress(), proof.getGasPrice(), proof.getGasLimit()));
+              proof.getStoreAddress(), proof.getGasPrice(), proof.getGasLimit(), proof.getHash(),
+              proof.getCountryCode()));
     }
   }
 
@@ -139,15 +163,15 @@ public class ProofOfAttentionService {
       cache.saveSync(packageName, new Proof(proof.getPackageName(), proof.getCampaignId(),
           createProofComponentList(timeStamp, nonce, proof), walletPackage, ProofStatus.PROCESSING,
           proof.getChainId(), proof.getOemAddress(), proof.getStoreAddress(), proof.getGasPrice(),
-          proof.getGasLimit()));
+          proof.getGasLimit(), proof.getHash(), proof.getCountryCode()));
     }
   }
 
   public void registerProof(String packageName, long timeStamp) {
-    disposables.add(packageName, Single.defer(
-        () -> Single.just(hashCalculator.calculateNonce(new NonceData(timeStamp, packageName))))
-        .doOnSuccess(nonce -> setSetProofSync(packageName, timeStamp, nonce))
-        .toCompletable()
+    disposables.add(packageName, Observable.fromCallable(
+        () -> hashCalculator.calculateNonce(new NonceData(timeStamp, packageName)))
+        .doOnNext(nonce -> setSetProofSync(packageName, timeStamp, nonce))
+        .ignoreElements()
         .subscribeOn(computationScheduler)
         .subscribe());
   }
@@ -188,7 +212,24 @@ public class ProofOfAttentionService {
         .isEmpty()
         && proof.getProofComponentList()
         .size() == maxNumberProofComponents && proof.getProofStatus()
-        .equals(ProofStatus.PROCESSING);
+        .equals(ProofStatus.PROCESSING) && proof.getCountryCode() != null;
+  }
+
+  private Observable<Proof> getReadyCountryCode() {
+    return cache.getAll()
+        .flatMap(proofs -> Observable.fromIterable(proofs)
+            .filter(this::isReadyToGetCountryCode));
+  }
+
+  private boolean isReadyToGetCountryCode(Proof proof) {
+    return proof.getCampaignId() != null
+        && !proof.getCampaignId()
+        .isEmpty()
+        && proof.getProofComponentList()
+        .size() == maxNumberProofComponents
+        && proof.getProofStatus()
+        .equals(ProofStatus.PROCESSING)
+        && proof.getCountryCode() == null;
   }
 
   public Observable<List<Proof>> get() {
@@ -219,19 +260,19 @@ public class ProofOfAttentionService {
       cache.saveSync(packageName,
           new Proof(packageName, proof.getCampaignId(), proof.getProofComponentList(),
               walletPackage, ProofStatus.PROCESSING, proof.getChainId(), address,
-              proof.getStoreAddress(), proof.getGasPrice(), proof.getGasLimit()));
+              proof.getStoreAddress(), proof.getGasPrice(), proof.getGasLimit(), proof.getHash(),
+              proof.getCountryCode()));
     }
   }
 
-  private void setGasSettingsSync(String packageName,
-      ProofSubmissionFeeData proofSubmissionFeeData) {
+  private void setGasSettingsSync(String packageName, BigDecimal gasPrice, BigDecimal gasLimit) {
     synchronized (this) {
       Proof proof = getPreviousProofSync(packageName);
       cache.saveSync(packageName,
           new Proof(packageName, proof.getCampaignId(), proof.getProofComponentList(),
               walletPackage, ProofStatus.PROCESSING, proof.getChainId(), proof.getOemAddress(),
-              proof.getStoreAddress(), proofSubmissionFeeData.getGasPrice(),
-              proofSubmissionFeeData.getGasLimit()));
+              proof.getStoreAddress(), gasPrice, gasLimit, proof.getHash(),
+              proof.getCountryCode()));
     }
   }
 
@@ -248,19 +289,22 @@ public class ProofOfAttentionService {
       cache.saveSync(packageName,
           new Proof(packageName, proof.getCampaignId(), proof.getProofComponentList(),
               walletPackage, ProofStatus.PROCESSING, proof.getChainId(), proof.getOemAddress(),
-              address, proof.getGasPrice(), proof.getGasLimit()));
+              address, proof.getGasPrice(), proof.getGasLimit(), proof.getHash(),
+              proof.getCountryCode()));
     }
   }
 
-  public Single<ProofSubmissionFeeData.RequirementsStatus> isWalletReady(String packageName) {
+  public Single<ProofSubmissionFeeData> isWalletReady(int chainId) {
     return Single.defer(() -> {
       synchronized (this) {
-        return proofWriter.hasEnoughFunds(getPreviousProofSync(packageName).getChainId());
+        return proofWriter.hasEnoughFunds(chainId);
       }
-    })
-        .doOnSuccess(
-            proofSubmissionFeeData -> setGasSettingsSync(packageName, proofSubmissionFeeData))
-        .subscribeOn(computationScheduler)
-        .map(ProofSubmissionFeeData::getStatus);
+    });
+  }
+
+  public void setGasSettings(String packageName, BigDecimal gasPrice, BigDecimal gasLimit) {
+    disposables.add(packageName,
+        Completable.fromAction(() -> setGasSettingsSync(packageName, gasPrice, gasLimit))
+            .subscribe());
   }
 }

@@ -1,6 +1,5 @@
 package com.asfoundation.wallet.repository;
 
-import android.util.Log;
 import com.asfoundation.wallet.entity.GasSettings;
 import com.asfoundation.wallet.interact.FindDefaultWalletInteract;
 import com.asfoundation.wallet.poa.Proof;
@@ -41,12 +40,12 @@ public class BlockChainWriter implements ProofWriter {
   }
 
   @Override public Single<ProofSubmissionFeeData> hasEnoughFunds(int chainId) {
-    return ethereumNetwork.executeOnNetworkAndRestore(chainId, defaultWalletInteract.find()
-        .flatMap(walletRepositoryType::balanceInWei)
-        .flatMap(balance -> gasSettingsRepository.getGasSettings(true)
+    return defaultWalletInteract.find()
+        .flatMap(wallet -> walletRepositoryType.balanceInWei(wallet, chainId))
+        .flatMap(balance -> gasSettingsRepository.getGasSettings(true, chainId)
             .map(gasSettings -> getFeeData(
                 balance.compareTo(registerPoaGasLimit.multiply(gasSettings.gasPrice)) >= 1,
-                gasSettings))))
+                gasSettings)))
         .onErrorResumeNext(throwable -> {
           if (throwable instanceof WalletNotFoundException) {
             return Single.just(

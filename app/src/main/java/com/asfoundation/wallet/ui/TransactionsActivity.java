@@ -16,7 +16,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableString;
-
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,6 +27,7 @@ import com.asfoundation.wallet.entity.Wallet;
 import com.asfoundation.wallet.interact.AddTokenInteract;
 import com.asfoundation.wallet.poa.TransactionFactory;
 import com.asfoundation.wallet.transactions.Transaction;
+import com.asfoundation.wallet.ui.appcoins.applications.AppcoinsApplication;
 import com.asfoundation.wallet.ui.toolbar.ToolbarArcBackground;
 import com.asfoundation.wallet.ui.widget.adapter.TransactionsAdapter;
 import com.asfoundation.wallet.util.BalanceUtils;
@@ -48,7 +48,8 @@ import static com.asfoundation.wallet.C.ErrorCode.EMPTY_COLLECTION;
 
 public class TransactionsActivity extends BaseNavigationActivity implements View.OnClickListener {
 
-  public static final String AIRDROP_MORE_INFO_URL = "https://appstorefoundation.org/asf-wallet";
+  public static final String READ_MORE_INFO_URL = "https://www.appstorefoundation.org/readmore";
+  private static final String TAG = TransactionsActivity.class.getSimpleName();
   @Inject TransactionsViewModelFactory transactionsViewModelFactory;
   @Inject AddTokenInteract addTokenInteract;
   @Inject TransactionFactory transactionFactory;
@@ -57,6 +58,7 @@ public class TransactionsActivity extends BaseNavigationActivity implements View
   private TransactionsAdapter adapter;
   private Dialog dialog;
   private EmptyTransactionsView emptyView;
+  private RecyclerView list;
 
   @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
     AndroidInjection.inject(this);
@@ -79,11 +81,10 @@ public class TransactionsActivity extends BaseNavigationActivity implements View
     initBottomNavigation();
     disableDisplayHomeAsUp();
 
-    adapter = new TransactionsAdapter(this::onTransactionClick);
+    adapter = new TransactionsAdapter(this::onTransactionClick, this::onApplicationClick);
     SwipeRefreshLayout refreshLayout = findViewById(R.id.refresh_layout);
     systemView = findViewById(R.id.system_view);
-
-    RecyclerView list = findViewById(R.id.list);
+    list = findViewById(R.id.list);
     list.setLayoutManager(new LinearLayoutManager(this));
     list.setAdapter(adapter);
 
@@ -104,6 +105,8 @@ public class TransactionsActivity extends BaseNavigationActivity implements View
         .observe(this, this::onDefaultWallet);
     viewModel.transactions()
         .observe(this, this::onTransactions);
+    viewModel.applications()
+        .observe(this, this::onApplications);
     refreshLayout.setOnRefreshListener(() -> viewModel.fetchTransactions(true));
   }
 
@@ -121,9 +124,20 @@ public class TransactionsActivity extends BaseNavigationActivity implements View
     return super.onOptionsItemSelected(item);
   }
 
+  private void onApplicationClick(AppcoinsApplication appcoinsApplication) {
+    viewModel.onAppClick(appcoinsApplication, this);
+  }
+
+  private void onApplications(List<AppcoinsApplication> appcoinsApplications) {
+    adapter.setApps(appcoinsApplications);
+    showList();
+  }
+
   private void onBalanceChanged(Map<String, String> balance) {
     if (!balance.isEmpty()) {
-      Map.Entry<String,String> entry = balance.entrySet().iterator().next();
+      Map.Entry<String, String> entry = balance.entrySet()
+          .iterator()
+          .next();
       String currency = entry.getKey();
       String value = entry.getValue();
       int smallTitleSize = (int) getResources().getDimension(R.dimen.title_small_text);
@@ -149,6 +163,7 @@ public class TransactionsActivity extends BaseNavigationActivity implements View
     super.onResume();
     setCollapsingTitle(new SpannableString(getString(R.string.unknown_balance_without_symbol)));
     adapter.clear();
+    list.setVisibility(View.GONE);
     viewModel.prepare();
     checkRoot();
   }
@@ -181,7 +196,7 @@ public class TransactionsActivity extends BaseNavigationActivity implements View
   }
 
   private void openLearnMore() {
-    viewModel.onLearnMoreClick(this, Uri.parse(AIRDROP_MORE_INFO_URL));
+    viewModel.onLearnMoreClick(this, Uri.parse(READ_MORE_INFO_URL));
   }
 
   @Override public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -204,7 +219,16 @@ public class TransactionsActivity extends BaseNavigationActivity implements View
 
   private void onTransactions(List<Transaction> transaction) {
     adapter.addTransactions(transaction);
+    showList();
     invalidateOptionsMenu();
+  }
+
+  private void showList() {
+    // the value is 1 because apps list item is always added, so if there is at least 1
+    // transaction, the list is shown
+    if (adapter.getItemCount() > 1) {
+      list.setVisibility(View.VISIBLE);
+    }
   }
 
   private void onDefaultWallet(Wallet wallet) {

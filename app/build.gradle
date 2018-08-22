@@ -27,16 +27,16 @@ android {
 
     def inputFile = new File("appcoins-services.json")
     def json = new JsonSlurper().parseText(inputFile.text)
-    buildConfigField 'String', 'DEFAULT_OEM_ADREESS',
+    buildConfigField 'String', 'DEFAULT_OEM_ADDRESS',
         "\"" + json.oems.default_address + "\""
-    buildConfigField 'String', 'DEFAULT_STORE_ADREESS',
+    buildConfigField 'String', 'DEFAULT_STORE_ADDRESS',
         "\"" + json.stores.default_address + "\""
 
-    applicationId "com.asfoundation.wallet"
+    applicationId "com.appcoins.wallet"
     minSdkVersion 21
     targetSdkVersion 27
-    versionCode 10
-    versionName "0.3.3a"
+    versionCode 13
+    versionName "0.2.0b"
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     vectorDrawables.useSupportLibrary = true
     multiDexEnabled = true
@@ -49,6 +49,7 @@ android {
     }
 
     buildConfigField 'int', 'DB_VERSION', '5'
+    buildConfigField 'int', 'BILLING_SUPPORTED_VERSION', project.BILLING_SUPPORTED_VERSION
 
     buildConfigField 'String', 'ROPSTEN_DEFAULT_TOKEN_SYMBOL',
         "\"" + project.ROPSTEN_DEFAULT_TOKEN_SYMBOL + "\""
@@ -67,10 +68,6 @@ android {
         "\"" + project.ROPSTEN_DEFAULT_TOKEN_NAME + "\""
     buildConfigField 'int', 'MAIN_NETWORK_DEFAULT_TOKEN_DECIMALS',
         project.MAIN_NETWORK_DEFAULT_TOKEN_DECIMALS
-    buildConfigField 'String', 'MAIN_NETWORK_ASF_ADS_CONTRACT_ADDRESS',
-        "\"" + project.MAIN_NETWORK_ASF_ADS_CONTRACT_ADDRESS + "\""
-    buildConfigField 'String', 'ROPSTEN_NETWORK_ASF_ADS_CONTRACT_ADDRESS',
-        "\"" + project.ROPSTEN_NETWORK_ASF_ADS_CONTRACT_ADDRESS + "\""
     buildConfigField 'String', 'REGISTER_PROOF_GAS_LIMIT',
         "\"" + project.REGISTER_PROOF_GAS_LIMIT + "\""
     buildConfigField 'String', 'PAYMENT_GAS_LIMIT',
@@ -93,6 +90,10 @@ android {
       minifyEnabled false
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
       signingConfig signingConfigs.release
+      buildConfigField 'String', 'BASE_HOST',
+          "\"" + project.BASE_HOST_PROD + "\""
+      buildConfigField 'String', 'CONVERSION_HOST',
+          "\"" + project.CONVERSION_HOST_PROD + "\""
     }
     debug {
       minifyEnabled false
@@ -100,6 +101,10 @@ android {
           project.LEADING_ZEROS_ON_PROOF_OF_ATTENTION_DEBUG
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
       applicationIdSuffix ".dev"
+      buildConfigField 'String', 'BASE_HOST',
+          "\"" + project.BASE_HOST_DEV + "\""
+      buildConfigField 'String', 'CONVERSION_HOST',
+          "\"" + project.CONVERSION_HOST_DEV + "\""
       applicationVariants.all { variant -> renameArtifact(defaultConfig)
       }
     }
@@ -132,6 +137,7 @@ dependencies {
   // Http client
   implementation "com.squareup.retrofit2:retrofit:$project.retrofitVersion"
   implementation "com.squareup.retrofit2:converter-gson:$project.retrofitVersion"
+  implementation "com.squareup.retrofit2:adapter-rxjava:2.1.0"
   implementation "com.squareup.retrofit2:adapter-rxjava2:$project.retrofitVersion"
   implementation "com.squareup.okhttp3:okhttp:$project.okhttpVersion"
   implementation "com.google.code.gson:gson:$project.gsonVersion"
@@ -151,7 +157,7 @@ dependencies {
   implementation "com.google.zxing:core:3.3.1"
   implementation "com.google.android.gms:play-services-vision:12.0.0"
   // Sugar
-  implementation "com.android.support.constraint:constraint-layout:1.0.2"
+  implementation "com.android.support.constraint:constraint-layout:1.1.2"
 
   implementation "com.github.apl-devs:appintro:v4.2.2"
   implementation 'com.romandanylyk:pageindicatorview:1.0.0'
@@ -159,6 +165,11 @@ dependencies {
   // ReactiveX
   implementation "io.reactivex.rxjava2:rxjava:$project.rxJavaVersion"
   implementation "io.reactivex.rxjava2:rxandroid:$project.rxAndroidVersion"
+  //ReactiveX 1 for legacy code support
+  implementation "io.reactivex:rxjava:1.2.7"
+  //
+  implementation "com.jakewharton.rxrelay:rxrelay:1.2.0"
+  implementation "com.jakewharton.rxbinding:rxbinding:1.0.1"
   // Dagger 2
   // Dagger core
   implementation "com.google.dagger:dagger:$project.daggerVersion"
@@ -191,6 +202,7 @@ dependencies {
   implementation project(":tn")
   implementation 'com.jakewharton.rxbinding2:rxbinding:2.1.1'
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+  implementation 'com.asfoundation:microraidenj-bds:0.3.7a'
 
   implementation "android.arch.persistence.room:runtime:$project.roomVersion"
   annotationProcessor "android.arch.persistence.room:compiler:$project.roomVersion"
@@ -201,6 +213,22 @@ dependencies {
   //        transitive = true
   //    }
   implementation project(path: ':airdrop')
+  implementation 'com.asfoundation:apps:1'
+  implementation "com.android.support:palette-v7:$project.supportVersion"
+  implementation "com.asfoundation:appcoins-contract-proxy:0.4.4b"
+  implementation project(path: ':billing')
+
+  //braintreepayments card form dependency
+  implementation "com.braintreepayments:card-form:3.3.0"
+  implementation "com.adyen.checkout:core:1.14.2"
+
+  // Rx Lifecycle
+  implementation "com.trello:rxlifecycle:1.0"
+  // If you want pre-written Activities and Fragments you can subclass as providers
+  implementation "com.trello:rxlifecycle-components:1.0"
+
+  // Needed to fill the gap between wallet's rxjava2 and billing rxjava1.
+  implementation "com.github.akarnokd:rxjava2-interop:0.13.0"
 }
 
 def renameArtifact(defaultConfig) {
@@ -214,5 +242,5 @@ def renameArtifact(defaultConfig) {
 }
 
 // execute android tests before realising a new apk
-tasks.whenTaskAdded { task -> if (task.name == 'assembleRelease') task.dependsOn('test')
-}
+//(tasks.whenTaskAdded { task -> if (task.name == 'assembleRelease') task.dependsOn('test')
+//})
