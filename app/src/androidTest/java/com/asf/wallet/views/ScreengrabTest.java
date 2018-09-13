@@ -1,5 +1,6 @@
 package com.asf.wallet.views;
 
+import android.support.test.espresso.Espresso;
 import android.support.test.espresso.ViewInteraction;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -8,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import com.asf.wallet.R;
+import com.asfoundation.wallet.ui.SplashActivity;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -58,7 +60,7 @@ import static org.hamcrest.Matchers.is;
     appCompatButton.perform(click());
 
     ViewInteraction appCompatButton2 = onView(
-        allOf(withId(R.id.import_account_button), withText("Import"),
+        allOf(withId(R.id.import_account_action), withText(R.string.already_have_account),
             childAtPosition(childAtPosition(withId(android.R.id.content), 0), 2), isDisplayed()));
     appCompatButton2.perform(click());
 
@@ -71,14 +73,11 @@ import static org.hamcrest.Matchers.is;
     appCompatImageButton.perform(click());
 
     ViewInteraction appCompatButton3 = onView(
-        allOf(withId(R.id.create_account_button), withText("Create"),
+        allOf(withId(R.id.new_account_action), withText(R.string.action_create_new_account),
             childAtPosition(childAtPosition(withId(android.R.id.content), 0), 0), isDisplayed()));
     appCompatButton3.perform(click());
 
-    ViewInteraction appCompatButton4 = onView(
-        allOf(withId(R.id.later_button), withText("Do it later"),
-            childAtPosition(childAtPosition(withId(android.R.id.content), 0), 0), isDisplayed()));
-    appCompatButton4.perform(click());
+    Espresso.pressBack();
 
     ViewInteraction appCompatButton5 = onView(allOf(withId(android.R.id.button1), withText("OK"),
         childAtPosition(childAtPosition(withId(R.id.buttonPanel), 0), 3)));
@@ -95,8 +94,8 @@ import static org.hamcrest.Matchers.is;
 
     Screengrab.screenshot("3");
 
-    ViewInteraction bottomNavigationItemView = onView(allOf(withId(R.id.navigation_send),
-        childAtPosition(childAtPosition(withId(R.id.navigation), 0), 0), isDisplayed()));
+    ViewInteraction bottomNavigationItemView = onView(allOf(withId(R.id.bottom_navigation),
+        childAtPosition(childAtPosition(withId(R.id.action_send), 0), 0), isDisplayed()));
     bottomNavigationItemView.perform(click());
 
     Screengrab.screenshot("4");
@@ -115,22 +114,5 @@ import static org.hamcrest.Matchers.is;
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
-
-    ViewInteraction bottomNavigationItemView2 = onView(allOf(withId(R.id.navigation_tokens),
-        childAtPosition(childAtPosition(withId(R.id.navigation), 0), 2), isDisplayed()));
-    bottomNavigationItemView2.perform(click());
-
-    try {
-      Thread.sleep(1000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-    Screengrab.screenshot("5");
-
-    ViewInteraction appCompatImageButton3 = onView(allOf(withContentDescription("Navigate up"),
-        childAtPosition(allOf(withId(R.id.toolbar),
-            childAtPosition(withClassName(is("android.support.design.widget.AppBarLayout")), 0)),
-            1), isDisplayed()));
-    appCompatImageButton3.perform(click());
   }
 }
