@@ -6,8 +6,11 @@ import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 import com.asfoundation.wallet.entity.Wallet;
 import com.asfoundation.wallet.service.AccountKeystoreService;
-import com.asfoundation.wallet.service.GethKeystoreAccountService;
+import com.asfoundation.wallet.service.KeyStoreFileManager;
+import com.asfoundation.wallet.service.Web3jKeystoreAccountService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.reactivex.observers.TestObserver;
+import io.reactivex.schedulers.TestScheduler;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,25 +29,22 @@ import static org.junit.Assert.assertTrue;
   static final String ADDRESS_1 = "0xeb1a948c6cc57fedf9271626404fc04a74ddd1e6";
 
   private AccountKeystoreService accountKeystoreService;
+  private TestScheduler scheduler;
 
   @Before public void setUp() {
     Context context = InstrumentationRegistry.getTargetContext();
-    accountKeystoreService =
-        new GethKeystoreAccountService(new File(context.getFilesDir(), "store"));
+    scheduler = new TestScheduler();
+    accountKeystoreService = new Web3jKeystoreAccountService(
+        new KeyStoreFileManager(new File(context.getFilesDir(), "store").getAbsolutePath(),
+            new ObjectMapper()), scheduler, new ObjectMapper());
   }
 
-  //	Single<byte[]> signTransaction(
-  //			Wallet signer,
-  //			String signerPassword,
-  //			String toAddress,
-  //			String wei,
-  //			long nonce,
-  //			long chainId);
   @Test public void testCreateAccount() {
     TestObserver<Wallet> subscriber = new TestObserver<>();
     accountKeystoreService.createAccount("1234")
         .toObservable()
         .subscribe(subscriber);
+    scheduler.triggerActions();
     subscriber.awaitTerminalEvent();
     subscriber.assertComplete();
     subscriber.assertNoErrors();
@@ -58,6 +58,7 @@ import static org.junit.Assert.assertTrue;
     TestObserver<Wallet> subscriber = accountKeystoreService.importKeystore(STORE_1, PASS_1, PASS_1)
         .toObservable()
         .test();
+    scheduler.triggerActions();
     subscriber.awaitTerminalEvent();
     subscriber.assertComplete();
     subscriber.assertNoErrors();
@@ -75,11 +76,14 @@ import static org.junit.Assert.assertTrue;
 
   @Test public void testDeleteStore() {
     importAccountStore(STORE_1, PASS_1);
-    TestObserver<Void> subscriber = accountKeystoreService.deleteAccount(ADDRESS_1, PASS_1)
-        .test();
+    TestObserver<Object> subscriber = new TestObserver<>();
+    accountKeystoreService.deleteAccount(ADDRESS_1, PASS_1)
+        .subscribe(subscriber);
+    scheduler.triggerActions();
     subscriber.awaitTerminalEvent();
     subscriber.assertComplete();
     TestObserver<Wallet[]> accountListSubscriber = accountList();
+    scheduler.triggerActions();
     accountListSubscriber.awaitTerminalEvent();
     accountListSubscriber.assertComplete();
     assertEquals(accountListSubscriber.valueCount(), 1);
@@ -89,16 +93,23 @@ import static org.junit.Assert.assertTrue;
 
   @Test public void testFetchAccounts() {
     List<Wallet> createdWallets = new ArrayList<>();
+    System.out.println("creating accounts");
     for (int i = 0; i < 100; i++) {
       createdWallets.add(createAccountStore());
     }
-    TestObserver<Wallet[]> subscriber = accountKeystoreService.fetchAccounts()
-        .test();
+    System.out.println("Accounts created: " + createdWallets.size());
+    TestObserver<Wallet[]> subscriber = new TestObserver<>();
+    accountKeystoreService.fetchAccounts()
+        .subscribe(subscriber);
+
+    scheduler.triggerActions();
     subscriber.awaitTerminalEvent();
     subscriber.assertComplete();
     assertEquals(subscriber.valueCount(), 1);
-    assertEquals(subscriber.values()
-        .get(0).length, 100);
+    int length = subscriber.values()
+        .get(0).length;
+    System.out.println("length: " + length);
+    assertEquals(100, length);
 
     Wallet[] wallets = subscriber.values()
         .get(0);
@@ -117,6 +128,7 @@ import static org.junit.Assert.assertTrue;
     TestObserver<String> subscriber =
         accountKeystoreService.exportAccount(new Wallet(ADDRESS_1), PASS_1, PASS_1)
             .test();
+    scheduler.triggerActions();
     subscriber.awaitTerminalEvent();
     subscriber.assertComplete();
     assertEquals(subscriber.valueCount(), 1);
@@ -143,15 +155,16 @@ import static org.junit.Assert.assertTrue;
         accountKeystoreService.importKeystore(store, password, password)
             .toObservable()
             .test();
+    scheduler.triggerActions();
     subscriber.awaitTerminalEvent();
     subscriber.assertComplete();
   }
 
   private void deleteAccountStore(String address, String password) {
+    TestObserver<Object> testObserver = new TestObserver<>();
     accountKeystoreService.deleteAccount(address, password)
-        .toObservable()
-        .test()
-        .awaitTerminalEvent();
+        .subscribe(testObserver);
+    scheduler.triggerActions();
   }
 
   private Wallet createAccountStore() {
@@ -159,6 +172,7 @@ import static org.junit.Assert.assertTrue;
     accountKeystoreService.createAccount("1234")
         .toObservable()
         .subscribe(subscriber);
+    scheduler.triggerActions();
     subscriber.awaitTerminalEvent();
     subscriber.assertComplete();
     assertEquals(subscriber.valueCount(), 1);

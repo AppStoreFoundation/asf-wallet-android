@@ -12,9 +12,13 @@ import com.asfoundation.wallet.repository.SharedPreferenceRepository;
 import com.asfoundation.wallet.repository.WalletRepository;
 import com.asfoundation.wallet.repository.WalletRepositoryType;
 import com.asfoundation.wallet.service.AccountKeystoreService;
-import com.asfoundation.wallet.service.GethKeystoreAccountService;
+import com.asfoundation.wallet.service.KeyStoreFileManager;
+import com.asfoundation.wallet.service.Web3jKeystoreAccountService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.reactivex.observers.TestObserver;
+import io.reactivex.schedulers.Schedulers;
 import java.io.File;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,12 +43,12 @@ import static junit.framework.Assert.assertTrue;
   @Before public void setUp() {
     Context context = InstrumentationRegistry.getTargetContext();
     PreferenceRepositoryType preferenceRepositoryType = new SharedPreferenceRepository(context);
-    AccountKeystoreService accountKeystoreService =
-        new GethKeystoreAccountService(new File(context.getFilesDir(), "store"));
-    EthereumNetworkRepositoryType networkRepository =
-        new EthereumNetworkRepository(preferenceRepositoryType);
+    AccountKeystoreService accountKeystoreService = new Web3jKeystoreAccountService(
+        new KeyStoreFileManager(new File(context.getFilesDir(), "store").getAbsolutePath(),
+            new ObjectMapper()), Schedulers.io(),
+        new ObjectMapper());
     accountRepository =
-        new WalletRepository(preferenceRepositoryType, accountKeystoreService, networkRepository);
+        new WalletRepository(null, preferenceRepositoryType, accountKeystoreService, null, null);
   }
 
   @Test public void testCreateAccount() {
@@ -58,9 +62,10 @@ import static junit.framework.Assert.assertTrue;
   }
 
   @Test public void testImportAccount() {
-    TestObserver<Wallet> subscriber = accountRepository.importKeystoreToWallet(STORE_1, PASS_1)
-        .toObservable()
-        .test();
+    TestObserver<Wallet> subscriber =
+        accountRepository.importKeystoreToWallet(STORE_1, PASS_1, PASS_1)
+            .toObservable()
+            .test();
     subscriber.awaitTerminalEvent();
     subscriber.assertComplete();
     subscriber.assertNoErrors();
@@ -167,7 +172,7 @@ import static junit.framework.Assert.assertTrue;
 
   @Test public void testGetBalance() {
     importAccount(STORE_1, PASS_1);
-    TestObserver<BigInteger> subscriber = accountRepository.balanceInWei(new Wallet(ADDRESS_1))
+    TestObserver<BigDecimal> subscriber = accountRepository.balanceInWei(new Wallet(ADDRESS_1))
         .test();
     subscriber.awaitTerminalEvent();
     subscriber.assertComplete();
@@ -178,9 +183,10 @@ import static junit.framework.Assert.assertTrue;
   }
 
   private void importAccount(String store, String password) {
-    TestObserver<Wallet> subscriber = accountRepository.importKeystoreToWallet(store, password)
-        .toObservable()
-        .test();
+    TestObserver<Wallet> subscriber =
+        accountRepository.importKeystoreToWallet(store, password, password)
+            .toObservable()
+            .test();
     subscriber.awaitTerminalEvent();
     subscriber.assertComplete();
   }
