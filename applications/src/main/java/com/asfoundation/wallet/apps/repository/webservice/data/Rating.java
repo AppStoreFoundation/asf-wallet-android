@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName;
 public class Rating {
 
   @SerializedName("avg") @Expose private int avg;
-  @SerializedName("total") @Expose private int total;
+  @SerializedName("total") @Expose private float total;
 
   public int getAvg() {
     return avg;
@@ -16,7 +16,7 @@ public class Rating {
     this.avg = avg;
   }
 
-  public int getTotal() {
+  public float getTotal() {
     return total;
   }
 
