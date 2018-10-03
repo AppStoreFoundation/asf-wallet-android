@@ -5,10 +5,10 @@ import com.google.gson.annotations.SerializedName;
 
 public class Rating {
 
-  @SerializedName("avg") @Expose private int avg;
+  @SerializedName("avg") @Expose private float avg;
   @SerializedName("total") @Expose private float total;
 
-  public int getAvg() {
+  public float getAvg() {
     return avg;
   }
 
