@@ -2,14 +2,17 @@ package com.asfoundation.wallet.apps;
 
 public class Application {
   private final String name;
+  private final String uniqueName;
   private final double rating;
   private final String iconUrl;
   private final String featuredGraphic;
   private final String packageName;
 
-  public Application(String name, double rating, String iconUrl, String featuredGraphic,
+  public Application(String name, String uniqueName, double rating, String iconUrl,
+      String featuredGraphic,
       String packageName) {
     this.name = name;
+    this.uniqueName = uniqueName;
     this.rating = rating;
     this.iconUrl = iconUrl;
     this.featuredGraphic = featuredGraphic;

@@ -21,10 +21,10 @@ public class NetworkAppsRepository implements Repository {
   private List<Application> map(
       com.asfoundation.wallet.apps.repository.webservice.data.Application applications) {
     ArrayList<Application> apps = new ArrayList<>();
-    for (com.asfoundation.wallet.apps.repository.webservice.data.List application : applications
-        .getDatalist()
+    for (com.asfoundation.wallet.apps.repository.webservice.data.List application :
+        applications.getDatalist()
         .getList()) {
-      apps.add(new Application(application.getName(), application.getStats()
+      apps.add(new Application(application.getName(), application.getUname(), application.getStats()
           .getPrating()
           .getAvg(), application.getIcon(), application.getGraphic(), application.getPackage()));
     }
