@@ -9,8 +9,7 @@ public class Application {
   private final String packageName;
 
   public Application(String name, String uniqueName, double rating, String iconUrl,
-      String featuredGraphic,
-      String packageName) {
+      String featuredGraphic, String packageName) {
     this.name = name;
     this.uniqueName = uniqueName;
     this.rating = rating;
@@ -19,14 +18,11 @@ public class Application {
     this.packageName = packageName;
   }
 
-  public String getName() {
-    return name;
-  }
-
   @Override public int hashCode() {
     int result;
     long temp;
     result = name.hashCode();
+    result = 31 * result + uniqueName.hashCode();
     temp = Double.doubleToLongBits(rating);
     result = 31 * result + (int) (temp ^ (temp >>> 32));
     result = 31 * result + iconUrl.hashCode();
@@ -39,17 +35,26 @@ public class Application {
     if (this == o) return true;
     if (!(o instanceof Application)) return false;
 
-    Application app = (Application) o;
+    Application that = (Application) o;
 
-    if (Double.compare(app.rating, rating) != 0) return false;
-    if (!name.equals(app.name)) return false;
-    if (!iconUrl.equals(app.iconUrl)) return false;
-    if (!featuredGraphic.equals(app.featuredGraphic)) return false;
-    return packageName.equals(app.packageName);
+    if (Double.compare(that.rating, rating) != 0) return false;
+    if (!name.equals(that.name)) return false;
+    if (!uniqueName.equals(that.uniqueName)) return false;
+    if (!iconUrl.equals(that.iconUrl)) return false;
+    if (!featuredGraphic.equals(that.featuredGraphic)) return false;
+    return packageName.equals(that.packageName);
   }
 
   @Override public String toString() {
     return "App{" + "name='" + name + '\'' + '}';
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public String getUniqueName() {
+    return uniqueName;
   }
 
   public double getRating() {

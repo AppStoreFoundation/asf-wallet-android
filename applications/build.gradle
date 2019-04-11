@@ -17,7 +17,7 @@ dependencies {
 sourceCompatibility = "1.8"
 targetCompatibility = "1.8"
 
-version 4
+version 6
 
 //region Publishing
 task sourcesJar(type: Jar) {
