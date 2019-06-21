@@ -1,12 +1,12 @@
 package com.asfoundation.wallet.widget;
 
 import android.content.Context;
-import android.support.annotation.LayoutRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -81,6 +81,13 @@ public class SystemView extends FrameLayout implements View.OnClickListener {
     setVisibility(VISIBLE);
   }
 
+  private void hideProgressBar() {
+    if (swipeRefreshLayout != null && swipeRefreshLayout.isRefreshing()) {
+      swipeRefreshLayout.setRefreshing(false);
+    }
+    progress.setVisibility(GONE);
+  }
+
   public void showProgress(boolean shouldShow) {
     if (shouldShow && swipeRefreshLayout != null && swipeRefreshLayout.isRefreshing()) {
       return;
@@ -98,7 +105,7 @@ public class SystemView extends FrameLayout implements View.OnClickListener {
         progress.setVisibility(VISIBLE);
       }
     } else {
-      hide();
+      hideProgressBar();
     }
   }
 
@@ -125,17 +132,8 @@ public class SystemView extends FrameLayout implements View.OnClickListener {
     }
   }
 
-  public void showEmpty() {
-    showEmpty("");
-  }
-
   public void showEmpty(@NonNull String message) {
     showError(message, null);
-  }
-
-  public void showEmpty(@LayoutRes int emptyLayout) {
-    showEmpty(LayoutInflater.from(getContext())
-        .inflate(emptyLayout, emptyBox, false));
   }
 
   public void showEmpty(View view) {

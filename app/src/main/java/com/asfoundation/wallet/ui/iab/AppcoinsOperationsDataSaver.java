@@ -1,6 +1,6 @@
 package com.asfoundation.wallet.ui.iab;
 
-import com.asfoundation.wallet.repository.Repository;
+import com.appcoins.wallet.commons.Repository;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.Scheduler;
@@ -34,7 +34,7 @@ public class AppcoinsOperationsDataSaver {
       }
       return list;
     })
-        .subscribeOn(scheduler)
+        .observeOn(scheduler)
         .toObservable()
         .flatMap(Observable::merge)
         .flatMap(

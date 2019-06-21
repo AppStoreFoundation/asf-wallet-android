@@ -3,8 +3,8 @@ package com.asfoundation.wallet.transactions;
 import com.asfoundation.wallet.entity.RawTransaction;
 import com.asfoundation.wallet.entity.TokenInfo;
 import com.asfoundation.wallet.interact.DefaultTokenProvider;
-import com.asfoundation.wallet.ui.iab.AppcoinsOperationsDataSaver;
 import com.asfoundation.wallet.ui.iab.AppCoinsOperation;
+import com.asfoundation.wallet.ui.iab.AppcoinsOperationsDataSaver;
 import com.google.gson.Gson;
 import io.reactivex.Single;
 import io.reactivex.observers.TestObserver;
@@ -96,8 +96,9 @@ import org.mockito.junit.MockitoJUnitRunner;
             Transaction.TransactionType.ADS, null, 1524759761,
             Transaction.TransactionStatus.SUCCESS, "0",
             "0x8367e6e522e5545466687bce1a508f4a32d14a49",
-            "0xf2e45dc350fa2d0a210c691f30cd58394cee1aa3",
-            new TransactionDetails("Test App", "/img/path/icon", null), null, operations));
+            "0xf2e45dc350fa2d0a210c691f30cd58394cee1aa3", new TransactionDetails("Test App",
+            new TransactionDetails.Icon(TransactionDetails.Icon.Type.FILE, "/img/path/icon"), null),
+            null, operations));
 
     operations = new ArrayList<>();
     operations.add(
@@ -156,9 +157,9 @@ import org.mockito.junit.MockitoJUnitRunner;
             "0x8506e0e07e4fbcd89684689257dd5f5649474f5cb3d1f0c703460a31bac110bb", 1524491228,
             Transaction.TransactionStatus.SUCCESS, "1000000000000000000",
             "0x33a8c36a4812947e6f5d7cd37778ff1ad699839b",
-            "0xb040e69bd4b1025ef6da958cac7464730933db71",
-            new TransactionDetails("Test App 2", "/img/path/icon2", "test item 2"), "APPC",
-            operations));
+            "0xb040e69bd4b1025ef6da958cac7464730933db71", new TransactionDetails("Test App 2",
+            new TransactionDetails.Icon(TransactionDetails.Icon.Type.FILE, "/img/path/icon2"),
+            "test item 2"), "APPC", operations));
 
     operations = new ArrayList<>();
     operations.add(
@@ -167,8 +168,7 @@ import org.mockito.junit.MockitoJUnitRunner;
             "0x33a8c36a4812947e6f5d7cd37778ff1ad699839b", "0.0000000000084"));
     transactionList.add(
         new Transaction("0x7d15f9c11a2f718ede84facca02080f6c9cf8a78da3c545347c1979235299932",
-            Transaction.TransactionType.STANDARD,
-            null, 1524237519,
+            Transaction.TransactionType.STANDARD, null, 1524237519,
             Transaction.TransactionStatus.SUCCESS, "100000000000000000",
             "0x2c30194bd2e7b6b8ff1467c5af1650f53cd231be",
             "0x33a8c36a4812947e6f5d7cd37778ff1ad699839b", null, null, operations));

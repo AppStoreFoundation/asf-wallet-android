@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
@@ -17,7 +16,7 @@
       android:orientation="vertical"
       app:layout_behavior="@string/appbar_scrolling_view_behavior"
       >
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/address_input_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -30,8 +29,8 @@
           android:layout_height="wrap_content"
           android:hint="@string/hint_contract_address"
           />
-    </android.support.design.widget.TextInputLayout>
-    <android.support.design.widget.TextInputLayout
+    </com.google.android.material.textfield.TextInputLayout>
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/symbol_input_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -43,8 +42,8 @@
           android:layout_height="wrap_content"
           android:hint="@string/hint_contract_symbol"
           />
-    </android.support.design.widget.TextInputLayout>
-    <android.support.design.widget.TextInputLayout
+    </com.google.android.material.textfield.TextInputLayout>
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/decimal_input_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -57,14 +56,14 @@
           android:hint="@string/hint_contract_decimals"
           android:inputType="number"
           />
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
     <Button
         android:id="@+id/save"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/button_height"
         android:layout_marginTop="@dimen/big_margin"
         android:text="@string/action_save"
-        style="@style/Widget.AppCompat.Button.Colored"
+        style="@style/ButtonStyle"
         />
   </LinearLayout>
   <com.asfoundation.wallet.widget.SystemView
@@ -74,4 +73,4 @@
       android:layout_marginTop="?actionBarSize"
       android:background="@color/white"
       />
-</android.support.design.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -2,14 +2,21 @@ package com.asfoundation.wallet.transactions;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import com.asfoundation.wallet.entity.TransactionContract;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import javax.annotation.Nullable;
 
 public class Transaction implements Parcelable {
+  public static final Creator<Transaction> CREATOR = new Creator<Transaction>() {
+    @Override public Transaction createFromParcel(Parcel in) {
+      return new Transaction(in);
+    }
+
+    @Override public Transaction[] newArray(int size) {
+      return new Transaction[size];
+    }
+  };
   private final String transactionId;
   @Nullable private final String approveTransactionId;
   private final TransactionType type;
@@ -18,13 +25,14 @@ public class Transaction implements Parcelable {
   private final String value;
   private final String from;
   private final String to;
-  private final TransactionDetails details;
-  private final String currency;
-  private final List<Operation> operations;
+  @Nullable private final TransactionDetails details;
+  @Nullable private final String currency;
+  @Nullable private final List<Operation> operations;
 
   public Transaction(String transactionId, TransactionType type,
       @Nullable String approveTransactionId, long timeStamp, TransactionStatus status, String value,
-      String from, String to, @Nullable TransactionDetails details, String currency, List<Operation> operations) {
+      String from, String to, @Nullable TransactionDetails details, String currency,
+      List<Operation> operations) {
     this.transactionId = transactionId;
     this.approveTransactionId = approveTransactionId;
     this.type = type;
@@ -38,15 +46,25 @@ public class Transaction implements Parcelable {
     this.operations = operations;
   }
 
-  public static final Creator<Transaction> CREATOR = new Creator<Transaction>() {
-    @Override public Transaction createFromParcel(Parcel in) {
-      return new Transaction(in);
+  protected Transaction(Parcel in) {
+    transactionId = in.readString();
+    approveTransactionId = in.readString();
+    type = TransactionType.fromInt(in.readInt());
+    timeStamp = in.readLong();
+    status = TransactionStatus.fromInt(in.readInt());
+    value = in.readString();
+    from = in.readString();
+    to = in.readString();
+    details = in.readParcelable(TransactionDetails.class.getClassLoader());
+    currency = in.readString();
+    Parcelable[] parcelableArray = in.readParcelableArray(Operation.class.getClassLoader());
+    operations = new ArrayList<>();
+    if (parcelableArray != null) {
+      Operation[] operationsArray =
+          Arrays.copyOf(parcelableArray, parcelableArray.length, Operation[].class);
+      operations.addAll(Arrays.asList(operationsArray));
     }
-
-    @Override public Transaction[] newArray(int size) {
-      return new Transaction[size];
-    }
-  };
+  }
 
   @Override public int describeContents() {
     return 0;
@@ -63,31 +81,82 @@ public class Transaction implements Parcelable {
     dest.writeString(to);
     dest.writeParcelable(details, flags);
     dest.writeString(currency);
-    Operation[] operationsArray = new Operation[operations.size()];
-    operations.toArray(operationsArray);
+    Operation[] operationsArray = new Operation[0];
+    if (operations != null) {
+      operationsArray = new Operation[operations.size()];
+      operations.toArray(operationsArray);
+    }
     dest.writeParcelableArray(operationsArray, flags);
   }
 
-  protected Transaction(Parcel in) {
-    transactionId = in.readString();
-    approveTransactionId = in.readString();
-    type = TransactionType.fromInt(in.readInt());
-    timeStamp = in.readLong();
-    status = TransactionStatus.fromInt(in.readInt());
-    value = in.readString();
-    from = in.readString();
-    to = in.readString();
-    details = in.readParcelable(TransactionDetails.class.getClassLoader());;
-    currency = in.readString();
-    Parcelable[] parcelableArray =
-        in.readParcelableArray(Operation.class.getClassLoader());
-    operations = new ArrayList<>();
-    if (parcelableArray != null) {
-      Operation[] operationsArray =
-          Arrays.copyOf(parcelableArray, parcelableArray.length, Operation[].class);
-      operations.addAll(Arrays.asList(operationsArray));
-    }
+  @Override public int hashCode() {
+    int result = transactionId.hashCode();
+    result = 31 * result + (approveTransactionId != null ? approveTransactionId.hashCode() : 0);
+    result = 31 * result + type.hashCode();
+    result = 31 * result + (int) (timeStamp ^ (timeStamp >>> 32));
+    result = 31 * result + status.hashCode();
+    result = 31 * result + value.hashCode();
+    result = 31 * result + from.hashCode();
+    result = 31 * result + to.hashCode();
+    result = 31 * result + (details != null ? details.hashCode() : 0);
+    result = 31 * result + (currency != null ? currency.hashCode() : 0);
+    result = 31 * result + (operations != null ? operations.hashCode() : 0);
+    return result;
+  }
 
+  @Override public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof Transaction)) return false;
+
+    Transaction that = (Transaction) o;
+
+    if (timeStamp != that.timeStamp) return false;
+    if (!transactionId.equals(that.transactionId)) return false;
+    if (approveTransactionId != null ? !approveTransactionId.equals(that.approveTransactionId)
+        : that.approveTransactionId != null) {
+      return false;
+    }
+    if (type != that.type) return false;
+    if (status != that.status) return false;
+    if (!value.equals(that.value)) return false;
+    if (!from.equals(that.from)) return false;
+    if (!to.equals(that.to)) return false;
+    if (details != null ? !details.equals(that.details) : that.details != null) return false;
+    if (currency != null ? !currency.equals(that.currency) : that.currency != null) return false;
+    return operations != null ? operations.equals(that.operations) : that.operations == null;
+  }
+
+  @Override public String toString() {
+    return "Transaction{"
+        + "transactionId='"
+        + transactionId
+        + '\''
+        + ", approveTransactionId='"
+        + approveTransactionId
+        + '\''
+        + ", type="
+        + type
+        + ", timeStamp="
+        + timeStamp
+        + ", status="
+        + status
+        + ", value='"
+        + value
+        + '\''
+        + ", from='"
+        + from
+        + '\''
+        + ", to='"
+        + to
+        + '\''
+        + ", details="
+        + details
+        + ", currency='"
+        + currency
+        + '\''
+        + ", operations="
+        + operations
+        + '}';
   }
 
   public String getApproveTransactionId() {
@@ -135,19 +204,29 @@ public class Transaction implements Parcelable {
   }
 
   public enum TransactionType {
-    STANDARD, IAB, ADS;
+    STANDARD, IAB, ADS, IAP_OFFCHAIN, ADS_OFFCHAIN, BONUS, TOP_UP, TRANSFER_OFF_CHAIN;
 
     static TransactionType fromInt(int type) {
-     switch (type) {
-       case 0:
-         return STANDARD;
-       case 1:
-         return IAB;
-       case 2:
-         return ADS;
-       default:
-         return STANDARD;
-     }
+      switch (type) {
+        case 0:
+          return STANDARD;
+        case 1:
+          return IAB;
+        case 2:
+          return ADS;
+        case 3:
+          return IAP_OFFCHAIN;
+        case 4:
+          return ADS_OFFCHAIN;
+        case 5:
+          return BONUS;
+        case 6:
+          return TOP_UP;
+        case 7:
+          return TRANSFER_OFF_CHAIN;
+        default:
+          return STANDARD;
+      }
     }
   }
 
@@ -166,61 +245,5 @@ public class Transaction implements Parcelable {
           return SUCCESS;
       }
     }
-  }
-
-  @Override public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    Transaction that = (Transaction) o;
-    return timeStamp == that.timeStamp
-        && Objects.equals(transactionId, that.transactionId)
-        && Objects.equals(approveTransactionId, that.approveTransactionId)
-        && type == that.type
-        && status == that.status
-        && Objects.equals(value, that.value)
-        && Objects.equals(from, that.from)
-        && Objects.equals(to, that.to)
-        && Objects.equals(details, that.details)
-        && Objects.equals(currency, that.currency)
-        && Objects.equals(operations, that.operations);
-  }
-
-  @Override public int hashCode() {
-    return Objects.hash(transactionId, approveTransactionId, type, timeStamp, status, value, from,
-        to, details, currency, operations);
-  }
-
-  @Override public String toString() {
-    return "Transaction{"
-        + "transactionId='"
-        + transactionId
-        + '\''
-        + ", approveTransactionId='"
-        + approveTransactionId
-        + '\''
-        + ", type="
-        + type
-        + ", timeStamp="
-        + timeStamp
-        + ", status="
-        + status
-        + ", value='"
-        + value
-        + '\''
-        + ", from='"
-        + from
-        + '\''
-        + ", to='"
-        + to
-        + '\''
-        + ", details='"
-        + details
-        + '\''
-        + ", currency='"
-        + currency
-        + '\''
-        + ", operations="
-        + operations
-        + '}';
   }
 }

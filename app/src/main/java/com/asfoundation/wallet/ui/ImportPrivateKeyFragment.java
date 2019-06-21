@@ -1,9 +1,10 @@
 package com.asfoundation.wallet.ui;
 
+import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,14 +15,21 @@ import com.asfoundation.wallet.ui.widget.OnImportPrivateKeyListener;
 
 public class ImportPrivateKeyFragment extends Fragment implements View.OnClickListener {
 
-  private static final OnImportPrivateKeyListener dummyOnImportPrivateKeyListener = key -> {
-  };
-
   private EditText privateKey;
-  private OnImportPrivateKeyListener onImportPrivateKeyListener = dummyOnImportPrivateKeyListener;
+  private OnImportPrivateKeyListener onImportPrivateKeyListener;
 
   public static ImportPrivateKeyFragment create() {
     return new ImportPrivateKeyFragment();
+  }
+
+  @Override public void onAttach(Context context) {
+    if (!(context instanceof OnImportPrivateKeyListener)) {
+      throw new IllegalArgumentException("this fragment should be attached to an "
+          + OnImportPrivateKeyListener.class.getSimpleName()
+          + " instance");
+    }
+    onImportPrivateKeyListener = ((OnImportPrivateKeyListener) context);
+    super.onAttach(context);
   }
 
   @Nullable @Override
@@ -51,9 +59,4 @@ public class ImportPrivateKeyFragment extends Fragment implements View.OnClickLi
     }
   }
 
-  public void setOnImportPrivateKeyListener(OnImportPrivateKeyListener onImportPrivateKeyListener) {
-    this.onImportPrivateKeyListener =
-        onImportPrivateKeyListener == null ? dummyOnImportPrivateKeyListener
-            : onImportPrivateKeyListener;
-  }
 }

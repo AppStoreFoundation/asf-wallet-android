@@ -1,11 +1,12 @@
 package com.asfoundation.wallet.viewmodel;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import com.asfoundation.wallet.interact.AddTokenInteract;
 import com.asfoundation.wallet.interact.FindDefaultWalletInteract;
 import com.asfoundation.wallet.router.MyTokensRouter;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class AddTokenViewModel extends BaseViewModel {
 
@@ -38,6 +39,7 @@ public class AddTokenViewModel extends BaseViewModel {
 
   public void showTokens(Context context) {
     findDefaultWalletInteract.find()
+        .observeOn(AndroidSchedulers.mainThread())
         .subscribe(w -> myTokensRouter.open(context, w), this::onError);
   }
 }

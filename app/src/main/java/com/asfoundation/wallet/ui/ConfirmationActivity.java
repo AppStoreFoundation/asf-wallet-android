@@ -1,20 +1,20 @@
 package com.asfoundation.wallet.ui;
 
 import android.app.Activity;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProviders;
 import com.asf.wallet.R;
 import com.asfoundation.wallet.C;
 import com.asfoundation.wallet.entity.ErrorEnvelope;
@@ -78,9 +78,12 @@ public class ConfirmationActivity extends BaseActivity {
     fromAddressText.setText(transactionBuilder.fromAddress());
     toAddressText.setText(transactionBuilder.toAddress());
 
-    valueText.setText(getString(R.string.new_transaction_value, transactionBuilder.amount(),
-        transactionBuilder.symbol()));
-    valueText.setTextColor(ContextCompat.getColor(this, R.color.red));
+    String value = "-" + transactionBuilder.amount()
+        .toString();
+    String symbol = transactionBuilder.symbol();
+    int smallTitleSize = (int) getResources().getDimension(R.dimen.small_text);
+    int color = getResources().getColor(R.color.color_grey_9e);
+    valueText.setText(BalanceUtils.formatBalance(value, symbol, smallTitleSize, color));
     BigDecimal gasPrice = transactionBuilder.gasSettings().gasPrice;
     BigDecimal gasLimit = transactionBuilder.gasSettings().gasLimit;
     gasPriceText.setText(

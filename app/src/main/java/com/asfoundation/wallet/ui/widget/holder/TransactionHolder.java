@@ -1,19 +1,20 @@
 package com.asfoundation.wallet.ui.widget.holder;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import com.asf.wallet.R;
 import com.asfoundation.wallet.transactions.Transaction;
 import com.asfoundation.wallet.transactions.TransactionDetails;
 import com.asfoundation.wallet.ui.widget.OnTransactionClickListener;
 import com.asfoundation.wallet.widget.CircleTransformation;
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -66,35 +67,131 @@ public class TransactionHolder extends BinderViewHolder<Transaction>
       currency = transaction.getCurrency();
     }
 
-    fill(transaction.getType(), transaction.getFrom(), transaction.getTo(), currency,
-        transaction.getValue(), ETHER_DECIMALS, transaction.getStatus(), transaction.getDetails());
+    String to = extractTo(transaction);
+    String from = extractFrom(transaction);
+
+    fill(from, to, currency, transaction.getValue(), ETHER_DECIMALS, transaction.getStatus(),
+        transaction.getDetails());
   }
 
-  private void fill(Transaction.TransactionType type, String from, String to, String currencySymbol,
-      String valueStr, long decimals, Transaction.TransactionStatus transactionStatus,
-      TransactionDetails details) {
+  private String extractTo(Transaction transaction) {
+    if (transaction.getOperations() != null
+        && transaction.getOperations()
+        .get(0) != null
+        && transaction.getOperations()
+        .get(0)
+        .getTo() != null) {
+      return transaction.getOperations()
+          .get(0)
+          .getTo();
+    } else {
+      return transaction.getTo();
+    }
+  }
+
+  private String extractFrom(Transaction transaction) {
+    if (transaction.getOperations() != null
+        && transaction.getOperations()
+        .get(0) != null
+        && transaction.getOperations()
+        .get(0)
+        .getFrom() != null) {
+      return transaction.getOperations()
+          .get(0)
+          .getFrom();
+    } else {
+      return transaction.getFrom();
+    }
+  }
+
+  private void fill(String from, String to, String currencySymbol, String valueStr, long decimals,
+      Transaction.TransactionStatus transactionStatus, TransactionDetails details) {
     boolean isSent = from.toLowerCase()
         .equals(defaultAddress);
 
-    int transactionTypeIcon = R.drawable.ic_transaction_peer;
-
-    if (type == Transaction.TransactionType.ADS) {
-      transactionTypeIcon = R.drawable.ic_transaction_poa;
-    } else if (type == Transaction.TransactionType.IAB) {
-      transactionTypeIcon = R.drawable.ic_transaction_iab;
+    TransactionDetails.Icon icon;
+    String uri = null;
+    if (details != null) {
+      icon = details.getIcon();
+      switch (icon.getType()) {
+        case FILE:
+          uri = "file:" + icon.getUri();
+          break;
+        case URL:
+          uri = icon.getUri();
+          break;
+      }
     }
 
-    if (details == null) {
-      srcImage.setImageResource(transactionTypeIcon);
-      typeIcon.setVisibility(View.GONE);
+    int transactionTypeIcon;
+    switch (transaction.getType()) {
+      case IAB:
+      case IAP_OFFCHAIN:
+        transactionTypeIcon = R.drawable.ic_transaction_iab;
+        setTypeIconVisibilityBasedOnDescription(details, uri);
+        break;
+      case ADS:
+      case ADS_OFFCHAIN:
+        transactionTypeIcon = R.drawable.ic_transaction_poa;
+        setTypeIconVisibilityBasedOnDescription(details, uri);
+        currencySymbol = getString(R.string.p2p_send_currency_appc_c);
+        break;
+      case BONUS:
+        typeIcon.setVisibility(View.GONE);
+        transactionTypeIcon = R.drawable.ic_transaction_peer;
+        currencySymbol = getString(R.string.p2p_send_currency_appc_c);
+        break;
+      case TOP_UP:
+        typeIcon.setVisibility(View.GONE);
+        transactionTypeIcon = R.drawable.transaction_type_top_up;
+        currencySymbol = getString(R.string.p2p_send_currency_appc_c);
+        break;
+      case TRANSFER_OFF_CHAIN:
+        typeIcon.setVisibility(View.GONE);
+        transactionTypeIcon = R.drawable.transaction_type_transfer_off_chain;
+        currencySymbol = getString(R.string.p2p_send_currency_appc_c);
+        break;
+      default:
+        transactionTypeIcon = R.drawable.ic_transaction_peer;
+        setTypeIconVisibilityBasedOnDescription(details, uri);
+    }
+
+    if (details != null) {
+      if (transaction.getType()
+          .equals(Transaction.TransactionType.BONUS)) {
+        address.setText(R.string.transaction_type_bonus);
+      } else if (transaction.getType()
+          .equals(Transaction.TransactionType.TOP_UP)) {
+        address.setText(R.string.topup_home_button);
+      } else if (transaction.getType()
+          .equals(Transaction.TransactionType.TRANSFER_OFF_CHAIN)) {
+        address.setText(R.string.transaction_type_p2p);
+      } else {
+        address.setText(details.getSourceName() == null ? isSent ? to : from : getSourceText(transaction));
+      }
+      description.setText(details.getDescription() == null ? "" : details.getDescription());
     } else {
-      Picasso.with(getContext())
-          .load("file:" + details.getIcon())
-          .transform(new CircleTransformation())
-          .into(srcImage);
-      ((ImageView) typeIcon.findViewById(R.id.icon)).setImageResource(transactionTypeIcon);
-      typeIcon.setVisibility(View.VISIBLE);
+      address.setText(isSent ? to : from);
+      description.setText("");
     }
+
+    int finalTransactionTypeIcon = transactionTypeIcon;
+    Picasso.with(getContext())
+        .load(uri)
+        .transform(new CircleTransformation())
+        .placeholder(finalTransactionTypeIcon)
+        .error(transactionTypeIcon)
+        .fit()
+        .into(srcImage, new Callback() {
+          @Override public void onSuccess() {
+            ((ImageView) typeIcon.findViewById(R.id.icon)).setImageResource(
+                finalTransactionTypeIcon);
+          }
+
+          @Override public void onError() {
+            typeIcon.setVisibility(View.GONE);
+          }
+        });
 
     int statusText = R.string.transaction_status_success;
     int statusColor = R.color.green;
@@ -113,8 +210,6 @@ public class TransactionHolder extends BinderViewHolder<Transaction>
     status.setText(statusText);
     status.setTextColor(ContextCompat.getColor(getContext(), statusColor));
 
-    address.setText(details != null ? details.getSourceName() : isSent ? to : from);
-    description.setText(details != null ? details.getDescription() : "");
     if (valueStr.equals("0")) {
       valueStr = "0 ";
     } else {
@@ -124,6 +219,25 @@ public class TransactionHolder extends BinderViewHolder<Transaction>
     currency.setText(currencySymbol);
 
     this.value.setText(valueStr);
+  }
+
+  private String getSourceText(Transaction transaction) {
+    if (transaction.getType()
+        .equals(Transaction.TransactionType.BONUS)) {
+      return getContext().getString(R.string.gamification_transaction_title,
+          transaction.getDetails()
+              .getSourceName());
+    }
+    return transaction.getDetails()
+        .getSourceName();
+  }
+
+  private void setTypeIconVisibilityBasedOnDescription(TransactionDetails details, String uri) {
+    if (uri == null || details.getSourceName() == null) {
+      typeIcon.setVisibility(View.GONE);
+    } else {
+      typeIcon.setVisibility(View.VISIBLE);
+    }
   }
 
   private String getScaledValue(String valueStr, long decimals) {

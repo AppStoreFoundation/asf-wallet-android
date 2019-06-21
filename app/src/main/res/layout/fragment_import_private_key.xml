@@ -2,25 +2,18 @@
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/login_form"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
   <LinearLayout
-      android:id="@+id/import_form"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_margin="@dimen/big_margin"
       android:orientation="vertical"
       >
-    <com.asfoundation.wallet.widget.HelperTextInputLayout
-        android:id="@+id/private_key_input_layout"
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:helperText="@string/suggestion_private_key"
-        app:hintAnimationEnabled="true"
-        app:hintEnabled="true"
-        app:passwordToggleEnabled="true"
         >
       <EditText
           android:id="@+id/private_key"
@@ -33,13 +26,13 @@
           android:maxLines="1"
           android:singleLine="true"
           />
-    </com.asfoundation.wallet.widget.HelperTextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
     <Button
         android:id="@+id/import_action"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/button_height"
         android:text="@string/action_import"
-        style="@style/Widget.AppCompat.Button.Colored"
+        style="@style/ButtonStyle"
         />
   </LinearLayout>
 </ScrollView>

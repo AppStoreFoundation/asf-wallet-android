@@ -1,46 +1,34 @@
 package com.asfoundation.wallet.ui.iab;
 
-import com.asfoundation.wallet.entity.TransactionBuilder;
-import io.reactivex.Observable;
+import android.os.Bundle;
+import com.asfoundation.wallet.billing.adyen.PaymentType;
+import java.math.BigDecimal;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * Created by trinkes on 13/03/2018.
+ * Created by franciscocalado on 20/07/2018.
  */
 
 public interface IabView {
-  Observable<String> getBuyClick();
 
-  Observable<Object> getCancelClick();
-
-  Observable<Object> getOkErrorClick();
-
-  void finish(String hash);
-
-  void showLoading();
+  void finish(Bundle data);
 
   void showError();
 
-  void setup(TransactionBuilder transactionBuilder);
+  void close(Bundle bundle);
 
-  void close();
+  void navigateToAdyenAuthorization(boolean isBds, String currency, PaymentType paymentType);
 
-  void showTransactionCompleted();
+  void navigateToWebViewAuthorization(String url);
 
-  void showBuy();
+  void showOnChain(BigDecimal amount, boolean isBds);
 
-  void showWrongNetworkError();
+  void showAdyenPayment(BigDecimal amount, String currency, boolean isBds, PaymentType paymentType);
 
-  void showNoNetworkError();
+  void showAppcoinsCreditsPayment(BigDecimal amount);
 
-  void showApproving();
+  void showPaymentMethodsView();
 
-  void showBuying();
-
-  void showNonceError();
-
-  void showNoTokenFundsError();
-
-  void showNoEtherFundsError();
-
-  void showNoFundsError();
+  void showShareLinkPayment(String domain, String skuId, String originalAmount,
+      String originalCurrency, BigDecimal amount, @NotNull String type);
 }

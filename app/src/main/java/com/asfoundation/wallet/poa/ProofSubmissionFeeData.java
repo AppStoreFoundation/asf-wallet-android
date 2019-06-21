@@ -26,7 +26,25 @@ public class ProofSubmissionFeeData {
     return status;
   }
 
+  @Override public int hashCode() {
+    int result = getGasLimit().hashCode();
+    result = 31 * result + getGasPrice().hashCode();
+    result = 31 * result + getStatus().hashCode();
+    return result;
+  }
+
+  @Override public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof ProofSubmissionFeeData)) return false;
+
+    ProofSubmissionFeeData that = (ProofSubmissionFeeData) o;
+
+    if (!getGasLimit().equals(that.getGasLimit())) return false;
+    if (!getGasPrice().equals(that.getGasPrice())) return false;
+    return getStatus() == that.getStatus();
+  }
+
   public enum RequirementsStatus {
-    READY, NO_FUNDS, NO_NETWORK, NO_WALLET
+    READY, NO_FUNDS, NO_NETWORK, NO_WALLET, WRONG_NETWORK, UNKNOWN_NETWORK
   }
 }

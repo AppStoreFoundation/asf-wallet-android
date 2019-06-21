@@ -6,6 +6,7 @@
   <uses-permission android:name="android.permission.INTERNET"/>
   <uses-permission android:name="android.permission.VIBRATE"/>
   <uses-permission android:name="android.permission.CAMERA"/>
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
   <application
       android:name="com.asfoundation.wallet.App"
@@ -15,7 +16,12 @@
       android:supportsRtl="true"
       android:testOnly="false"
       android:theme="@style/AppTheme.NoActionBar"
+      android:networkSecurityConfig="@xml/network_security_config"
       tools:replace="android:name, android:theme, android:allowBackup">
+    <meta-data
+        android:name="com.facebook.sdk.ApplicationId"
+        android:value="@string/facebook_app_id"/>
+
     <activity
         android:name="com.asfoundation.wallet.ui.SplashActivity"
         android:theme="@style/SplashTheme">
@@ -31,13 +37,19 @@
         android:label="@string/title_account_list"/>
 
     <activity
+        android:name="com.asfoundation.wallet.ui.onboarding.OnboardingActivity"
+        android:label=""
+        android:screenOrientation="portrait"/>
+
+    <activity
         android:name="com.asfoundation.wallet.ui.ImportWalletActivity"
         android:label="@string/title_import"
         android:windowSoftInputMode="stateAlwaysVisible|adjustResize"/>
 
     <activity
         android:name="com.asfoundation.wallet.ui.TransactionsActivity"
-        android:label="@string/title_import"/>
+        android:theme="@style/MaterialAppTheme"
+        android:label="@string/app_name"/>
 
     <activity
         android:name="com.asfoundation.wallet.ui.SettingsActivity"
@@ -76,6 +88,7 @@
     <activity
         android:name="com.asfoundation.wallet.ui.TokenChangeCollectionActivity"
         android:label="@string/title_tokens"/>
+
     <activity
         android:name="com.asfoundation.wallet.ui.Erc681Receiver"
         android:theme="@style/Theme.AppCompat.Transparent.NoDisplay">
@@ -87,13 +100,90 @@
     </activity>
 
     <activity
-        android:name="com.asfoundation.wallet.ui.iab.IabActivity"
+        android:name="com.asfoundation.wallet.ui.OneStepPaymentReceiver"
+        android:theme="@style/Theme.AppCompat.Transparent.NoDisplay">
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW"/>
+
+        <category android:name="android.intent.category.DEFAULT"/>
+        <category android:name="android.intent.category.BROWSABLE"/>
+
+        <data android:scheme="https"/>
+        <data android:host="${paymentHost}"/>
+        <data android:host="${secondPaymentHost}"/>
+        <data android:pathPrefix="/transaction"/>
+      </intent-filter>
+    </activity>
+
+    <activity
+        android:name="com.asfoundation.wallet.ui.iab.WebViewActivity"
         android:theme="@style/Theme.AppCompat.Transparent"/>
+
+    <activity
+        android:name="com.asfoundation.wallet.permissions.request.view.PermissionsActivity"
+        android:theme="@style/Theme.AppCompat.Transparent.NoFloating">
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+        <data
+            android:host="wallet"
+            android:path="/permissions/1"
+            android:scheme="appcoins"/>
+      </intent-filter>
+    </activity>
+
+    <activity android:name="com.asfoundation.wallet.permissions.manage.view.ManagePermissionsActivity"/>
+
+    <activity
+        android:name="com.asfoundation.wallet.ui.iab.IabActivity"
+        android:launchMode="singleInstance"
+        android:theme="@style/Theme.AppCompat.Transparent.FitAppWindow"
+        >
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW"/>
+
+        <category android:name="android.intent.category.DEFAULT"/>
+        <category android:name="android.intent.category.BROWSABLE"/>
+
+        <data
+            android:host="aptoide.com"
+            android:pathPrefix="/adyen"
+            android:scheme="billing2"/>
+        <data
+            android:host="aptoide.com"
+            android:pathPrefix="/adyen"
+            android:scheme="billing"/>
+      </intent-filter>
+    </activity>
 
     <activity
         android:name="com.asfoundation.wallet.ui.airdrop.AirdropActivity"
         android:label="@string/title_airdrop"
         android:screenOrientation="portrait"/>
+
+    <activity
+        android:name="com.asfoundation.wallet.ui.gamification.RewardsLevelActivity"
+        android:label="@string/gamification_level_title"
+        android:screenOrientation="portrait"/>
+
+    <activity
+        android:name="com.asfoundation.wallet.ui.transact.TransferActivity"
+        android:label="@string/title_activity_send"/>
+
+    <activity android:name="com.asfoundation.wallet.topup.TopUpActivity"
+        android:label="@string/topup_title"
+        android:launchMode="singleInstance">
+      <intent-filter>
+        <data
+            android:host="aptoide.com"
+            android:pathPrefix="/adyen"
+            android:scheme="billing2"/>
+        <data
+            android:host="aptoide.com"
+            android:pathPrefix="/adyen"
+            android:scheme="billing"/>
+      </intent-filter>
+    </activity>
 
     <meta-data
         android:name="io.fabric.ApiKey"

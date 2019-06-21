@@ -1,21 +1,26 @@
 package com.asfoundation.wallet.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.text.SpannableString;
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import com.asf.wallet.R;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
+import java.util.ArrayList;
+import java.util.List;
+import org.jetbrains.annotations.NotNull;
 
-public abstract class BaseActivity extends AppCompatActivity {
+public abstract class BaseActivity extends AppCompatActivity implements ActivityResultSharer {
+
+  private List<ActivityResultListener> activityResultListeners;
 
   @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
+    activityResultListeners = new ArrayList<>();
     super.onCreate(savedInstanceState);
     Window window = getWindow();
 
@@ -24,9 +29,6 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
     window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-
-    // finally change the color
-    window.setStatusBarColor(ContextCompat.getColor(this,R.color.statusBarColor));
   }
 
   protected Toolbar toolbar() {
@@ -46,14 +48,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
   }
 
-  protected void setSubtitle(String subtitle) {
-    ActionBar actionBar = getSupportActionBar();
-    if (actionBar != null) {
-      actionBar.setSubtitle(subtitle);
-    }
-  }
-
-  protected void setCollapsingTitle(SpannableString title) {
+  protected void setCollapsingTitle(String title) {
     CollapsingToolbarLayout collapsing = findViewById(R.id.toolbar_layout);
     if (collapsing != null) {
       collapsing.setTitle(title);
@@ -95,5 +90,21 @@ public abstract class BaseActivity extends AppCompatActivity {
         break;
     }
     return true;
+  }
+
+  @Override public void addOnActivityListener(@NotNull ActivityResultListener listener) {
+    activityResultListeners.add(listener);
+  }
+
+  @Override public void remove(@NotNull ActivityResultListener listener) {
+    activityResultListeners.remove(listener);
+  }
+
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    for (ActivityResultListener listener : activityResultListeners) {
+      listener.onActivityResult(requestCode, resultCode, data);
+    }
   }
 }

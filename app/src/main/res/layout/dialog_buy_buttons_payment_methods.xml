@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/normal_padding"
+    android:orientation="horizontal"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:gravity="end"
+    >
+  <Button
+      android:id="@+id/cancel_button"
+      android:layout_width="wrap_content"
+      android:layout_height="35dp"
+      android:minWidth="80dp"
+      android:maxWidth="126dp"
+      android:layout_gravity="center_vertical"
+      android:text="@string/cancel"
+      android:textColor="@color/dialog_buy_value_text"
+      android:textSize="14sp"
+      style="?android:attr/borderlessButtonStyle"
+      android:layout_marginEnd="@dimen/big_margin"
+      />
+
+  <Button
+      android:id="@+id/buy_button"
+      android:layout_width="wrap_content"
+      android:minWidth="80dp"
+      android:maxWidth="126dp"
+      android:layout_height="35dp"
+      android:layout_gravity="center_vertical"
+      android:textColor="@color/white"
+      android:textSize="14sp"
+      style="@style/ButtonStyle"
+      />
+</LinearLayout>

@@ -1,22 +1,19 @@
 package com.asfoundation.wallet.ui;
 
 import android.app.Dialog;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
-import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.BottomSheetDialog;
-import android.support.design.widget.Snackbar;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.asf.wallet.R;
 import com.asfoundation.wallet.entity.ErrorEnvelope;
 import com.asfoundation.wallet.entity.Wallet;
@@ -28,6 +25,9 @@ import com.asfoundation.wallet.widget.AddWalletView;
 import com.asfoundation.wallet.widget.BackupView;
 import com.asfoundation.wallet.widget.BackupWarningView;
 import com.asfoundation.wallet.widget.SystemView;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.snackbar.Snackbar;
 import dagger.android.AndroidInjection;
 import javax.inject.Inject;
 
@@ -69,7 +69,15 @@ public class WalletsActivity extends BaseActivity
     systemView.attachRecyclerView(list);
     systemView.attachSwipeRefreshLayout(refreshLayout);
     backupWarning.setOnPositiveClickListener(this::onNowBackup);
-    backupWarning.setOnNegativeClickListener(this::onLaterBackup);
+    backupWarning.setOnSkipClickListener(v -> {
+      hideDialog();
+      showToolbar();
+      if (adapter.getItemCount() <= 1) {
+        onBackPressed();
+      } else {
+        backupWarning.hide();
+      }
+    });
 
     viewModel = ViewModelProviders.of(this, walletsViewModelFactory)
         .get(WalletsViewModel.class);
@@ -96,6 +104,20 @@ public class WalletsActivity extends BaseActivity
     refreshLayout.setOnRefreshListener(viewModel::fetchWallets);
   }
 
+  @Override public boolean onOptionsItemSelected(MenuItem item) {
+    switch (item.getItemId()) {
+      case R.id.action_add: {
+        onAddWallet();
+      }
+      break;
+      case android.R.id.home: {
+        onBackPressed();
+        return true;
+      }
+    }
+    return super.onOptionsItemSelected(item);
+  }
+
   private void onCreateWalletError(ErrorEnvelope errorEnvelope) {
     dialog = buildDialog().setTitle(R.string.title_dialog_error)
         .setMessage(
@@ -116,20 +138,6 @@ public class WalletsActivity extends BaseActivity
       getMenuInflater().inflate(R.menu.menu_add, menu);
     }
     return super.onCreateOptionsMenu(menu);
-  }
-
-  @Override public boolean onOptionsItemSelected(MenuItem item) {
-    switch (item.getItemId()) {
-      case R.id.action_add: {
-        onAddWallet();
-      }
-      break;
-      case android.R.id.home: {
-        onBackPressed();
-        return true;
-      }
-    }
-    return super.onOptionsItemSelected(item);
   }
 
   @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -179,12 +187,18 @@ public class WalletsActivity extends BaseActivity
   }
 
   @Override public void onBackPressed() {
-    // User can't start work without wallet.
-    if (adapter.getItemCount() > 0) {
-      viewModel.showTransactions(this);
+    if (backupWarning.isShown() && adapter.getItemCount() > 1) {
+      hideDialog();
+      showToolbar();
+      backupWarning.hide();
     } else {
-      finish();
-      System.exit(0);
+      // User can't start work without wallet.
+      if (adapter.getItemCount() > 0) {
+        viewModel.showTransactions(this);
+      } else {
+        finish();
+        System.exit(0);
+      }
     }
   }
 
@@ -235,18 +249,9 @@ public class WalletsActivity extends BaseActivity
   }
 
   private void onFetchWallet(Wallet[] wallets) {
-    if (wallets == null || wallets.length == 0) {
-      disableDisplayHomeAsUp();
-      AddWalletView addWalletView = new AddWalletView(this, R.layout.layout_empty_add_account);
-      addWalletView.setOnNewWalletClickListener(this);
-      addWalletView.setOnImportWalletClickListener(this);
-      systemView.showEmpty(addWalletView);
-      adapter.setWallets(new Wallet[0]);
-      hideToolbar();
-    } else {
-      enableDisplayHomeAsUp();
-      adapter.setWallets(wallets);
-    }
+    enableDisplayHomeAsUp();
+    adapter.setWallets(wallets);
+    systemView.setVisibility(View.GONE);
     invalidateOptionsMenu();
   }
 
@@ -255,26 +260,8 @@ public class WalletsActivity extends BaseActivity
     backupWarning.show(wallet);
   }
 
-  private void onLaterBackup(View view, Wallet wallet) {
-    showNoBackupWarning(wallet);
-  }
-
   private void onNowBackup(View view, Wallet wallet) {
     showBackupDialog(wallet, true);
-  }
-
-  private void showNoBackupWarning(Wallet wallet) {
-    dialog = buildDialog().setTitle(getString(R.string.title_dialog_watch_out))
-        .setMessage(getString(R.string.dialog_message_unrecoverable_message))
-        .setIcon(R.drawable.ic_warning_black_24dp)
-        .setPositiveButton(R.string.i_understand, (dialog, whichButton) -> {
-          backupWarning.hide();
-          showToolbar();
-        })
-        .setNegativeButton(android.R.string.cancel,
-            null) //(dialog, whichButton) -> showBackupDialog(wallet, true)
-        .create();
-    dialog.show();
   }
 
   private void showBackupDialog(Wallet wallet, boolean isNew) {

@@ -20,4 +20,5 @@ import dagger.Provides;
   @Provides ExternalBrowserRouter externalBrowserRouter() {
     return new ExternalBrowserRouter();
   }
+
 }
