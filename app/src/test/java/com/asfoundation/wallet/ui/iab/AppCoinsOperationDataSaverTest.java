@@ -1,6 +1,6 @@
 package com.asfoundation.wallet.ui.iab;
 
-import com.asfoundation.wallet.repository.MemoryCache;
+import com.appcoins.wallet.commons.MemoryCache;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.TestScheduler;
 import io.reactivex.subjects.BehaviorSubject;
@@ -78,6 +78,6 @@ import static org.mockito.Mockito.when;
         new AppcoinsOperationsDataSaver.OperationDataSource.OperationData(ID_1, PACKAGE_NAME,
             PRODUCT_NAME));
     scheduler.triggerActions();
-    Assert.assertEquals(null, cache.getSync(ID_1));
+    Assert.assertNull(cache.getSync(ID_1));
   }
 }

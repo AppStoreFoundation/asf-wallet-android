@@ -1,12 +1,6 @@
 package com.asfoundation.wallet.widget;
 
 import android.content.Context;
-import android.support.annotation.LayoutRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -16,7 +10,12 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.asf.wallet.R;
+import com.google.android.material.snackbar.Snackbar;
 
 public class SystemView extends FrameLayout implements View.OnClickListener {
   private ProgressBar progress;
@@ -66,7 +65,7 @@ public class SystemView extends FrameLayout implements View.OnClickListener {
     this.recyclerView = recyclerView;
   }
 
-  public void hide() {
+  private void hide() {
     hideAllComponents();
     setVisibility(GONE);
   }
@@ -79,6 +78,13 @@ public class SystemView extends FrameLayout implements View.OnClickListener {
     errorBox.setVisibility(GONE);
     progress.setVisibility(GONE);
     setVisibility(VISIBLE);
+  }
+
+  private void hideProgressBar() {
+    if (swipeRefreshLayout != null && swipeRefreshLayout.isRefreshing()) {
+      swipeRefreshLayout.setRefreshing(false);
+    }
+    progress.setVisibility(GONE);
   }
 
   public void showProgress(boolean shouldShow) {
@@ -98,7 +104,7 @@ public class SystemView extends FrameLayout implements View.OnClickListener {
         progress.setVisibility(VISIBLE);
       }
     } else {
-      hide();
+      hideProgressBar();
     }
   }
 
@@ -123,19 +129,6 @@ public class SystemView extends FrameLayout implements View.OnClickListener {
       messageTxt.setVisibility(TextUtils.isEmpty(message) ? GONE : VISIBLE);
       tryAgain.setVisibility(this.onTryAgainClickListener == null ? GONE : VISIBLE);
     }
-  }
-
-  public void showEmpty() {
-    showEmpty("");
-  }
-
-  public void showEmpty(@NonNull String message) {
-    showError(message, null);
-  }
-
-  public void showEmpty(@LayoutRes int emptyLayout) {
-    showEmpty(LayoutInflater.from(getContext())
-        .inflate(emptyLayout, emptyBox, false));
   }
 
   public void showEmpty(View view) {

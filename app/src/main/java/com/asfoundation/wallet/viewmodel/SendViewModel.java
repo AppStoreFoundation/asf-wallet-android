@@ -1,10 +1,11 @@
 package com.asfoundation.wallet.viewmodel;
 
 import android.app.Activity;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import com.asfoundation.wallet.entity.Address;
 import com.asfoundation.wallet.entity.GasSettings;
 import com.asfoundation.wallet.entity.TransactionBuilder;
@@ -13,12 +14,15 @@ import com.asfoundation.wallet.interact.FetchGasSettingsInteract;
 import com.asfoundation.wallet.interact.FindDefaultWalletInteract;
 import com.asfoundation.wallet.router.ConfirmationRouter;
 import com.asfoundation.wallet.router.Result;
+import com.asfoundation.wallet.router.TransactionsRouter;
 import com.asfoundation.wallet.util.QRUri;
 import com.asfoundation.wallet.util.TransferParser;
 import com.google.android.gms.vision.barcode.Barcode;
 import io.reactivex.disposables.CompositeDisposable;
 import java.math.BigDecimal;
 import org.web3j.utils.Numeric;
+
+import static com.asfoundation.wallet.ui.barcode.BarcodeCaptureActivity.ERROR_CODE;
 
 public class SendViewModel extends BaseViewModel {
   private final MutableLiveData<String> symbol = new MutableLiveData<>();
@@ -30,15 +34,17 @@ public class SendViewModel extends BaseViewModel {
   private final ConfirmationRouter confirmationRouter;
   private final TransferParser transferParser;
   private final CompositeDisposable disposables;
+  private final TransactionsRouter transactionsRouter;
   private TransactionBuilder transactionBuilder;
 
   SendViewModel(FindDefaultWalletInteract findDefaultWalletInteract,
       FetchGasSettingsInteract fetchGasSettingsInteract, ConfirmationRouter confirmationRouter,
-      TransferParser transferParser) {
+      TransferParser transferParser, TransactionsRouter transactionsRouter) {
     this.findDefaultWalletInteract = findDefaultWalletInteract;
     this.fetchGasSettingsInteract = fetchGasSettingsInteract;
     this.confirmationRouter = confirmationRouter;
     this.transferParser = transferParser;
+    this.transactionsRouter = transactionsRouter;
     disposables = new CompositeDisposable();
   }
 
@@ -113,7 +119,8 @@ public class SendViewModel extends BaseViewModel {
 
   public boolean extractFromQR(Barcode barcode) {
     QRUri qrUrl = QRUri.parse(barcode.displayValue);
-    if (qrUrl != null) {
+    if (!qrUrl.getAddress()
+        .equals(ERROR_CODE)) {
       transactionBuilder.toAddress(qrUrl.getAddress());
       if (qrUrl.getParameter("data") != null) {
         transactionBuilder.data(
@@ -140,5 +147,9 @@ public class SendViewModel extends BaseViewModel {
 
   public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
     return confirmationRouter.onActivityResult(requestCode, resultCode, data);
+  }
+
+  public void showTransactions(Context context) {
+    transactionsRouter.open(context, true);
   }
 }

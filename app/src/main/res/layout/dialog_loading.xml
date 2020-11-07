@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/loading"
@@ -14,10 +14,10 @@
     >
   <ProgressBar
       android:id="@+id/progressBar"
-      android:layout_width="80dp"
-      android:layout_height="80dp"
-      android:layout_marginBottom="40dp"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
       android:layout_marginTop="40dp"
+      android:layout_marginBottom="40dp"
       android:indeterminateDrawable="@drawable/gradient_progress"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
@@ -37,4 +37,4 @@
       app:layout_constraintTop_toBottomOf="@+id/progressBar"
       />
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

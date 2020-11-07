@@ -1,26 +1,28 @@
 package com.asfoundation.wallet.ui;
 
 import android.app.Activity;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.lifecycle.ViewModelProviders;
 import com.asf.wallet.R;
 import com.asfoundation.wallet.C;
 import com.asfoundation.wallet.entity.ErrorEnvelope;
 import com.asfoundation.wallet.entity.PendingTransaction;
 import com.asfoundation.wallet.entity.TransactionBuilder;
 import com.asfoundation.wallet.util.BalanceUtils;
+import com.asfoundation.wallet.util.CurrencyFormatUtils;
+import com.asfoundation.wallet.util.WalletCurrency;
 import com.asfoundation.wallet.viewmodel.ConfirmationViewModel;
 import com.asfoundation.wallet.viewmodel.ConfirmationViewModelFactory;
 import com.asfoundation.wallet.viewmodel.GasSettingsViewModel;
@@ -37,6 +39,7 @@ public class ConfirmationActivity extends BaseActivity {
 
   AlertDialog dialog;
   @Inject ConfirmationViewModelFactory confirmationViewModelFactory;
+  CurrencyFormatUtils currencyFormatUtils;
   ConfirmationViewModel viewModel;
   private TextView fromAddressText;
   private TextView toAddressText;
@@ -52,7 +55,7 @@ public class ConfirmationActivity extends BaseActivity {
 
     setContentView(R.layout.activity_confirm);
     toolbar();
-
+    currencyFormatUtils = CurrencyFormatUtils.Companion.create();
     fromAddressText = findViewById(R.id.text_from);
     toAddressText = findViewById(R.id.text_to);
     valueText = findViewById(R.id.text_value);
@@ -74,21 +77,44 @@ public class ConfirmationActivity extends BaseActivity {
         .observe(this, this::onError);
   }
 
+  @Override public boolean onOptionsItemSelected(MenuItem item) {
+    if (item.getItemId() == R.id.action_edit) {
+      viewModel.openGasSettings(ConfirmationActivity.this);
+    }
+    return super.onOptionsItemSelected(item);
+  }
+
+  @Override protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    super.onActivityResult(requestCode, resultCode, intent);
+    if (requestCode == GasSettingsViewModel.SET_GAS_SETTINGS) {
+      if (resultCode == RESULT_OK) {
+        viewModel.setGasSettings(intent.getParcelableExtra(EXTRA_GAS_SETTINGS));
+      }
+    }
+  }
+
   private void onTransactionBuilder(TransactionBuilder transactionBuilder) {
     fromAddressText.setText(transactionBuilder.fromAddress());
     toAddressText.setText(transactionBuilder.toAddress());
 
-    valueText.setText(getString(R.string.new_transaction_value, transactionBuilder.amount(),
-        transactionBuilder.symbol()));
-    valueText.setTextColor(ContextCompat.getColor(this, R.color.red));
+    String value = "-" + currencyFormatUtils.formatTransferCurrency(transactionBuilder.amount(),
+        WalletCurrency.ETHEREUM);
+    String symbol = transactionBuilder.symbol();
+    int smallTitleSize = (int) getResources().getDimension(R.dimen.small_text);
+    int color = getResources().getColor(R.color.color_grey_9e);
+    valueText.setText(BalanceUtils.formatBalance(value, symbol, smallTitleSize, color));
     BigDecimal gasPrice = transactionBuilder.gasSettings().gasPrice;
     BigDecimal gasLimit = transactionBuilder.gasSettings().gasLimit;
-    gasPriceText.setText(
-        getString(R.string.gas_price_value, BalanceUtils.weiToGwei(gasPrice), GWEI_UNIT));
+    String formattedGasPrice = getString(R.string.gas_price_value,
+        currencyFormatUtils.formatTransferCurrency(BalanceUtils.weiToGwei(gasPrice),
+            WalletCurrency.ETHEREUM), GWEI_UNIT);
+    gasPriceText.setText(formattedGasPrice);
     gasLimitText.setText(transactionBuilder.gasSettings().gasLimit.toPlainString());
 
-    String networkFee = BalanceUtils.weiToEth(gasPrice.multiply(gasLimit))
-        .toPlainString() + " " + C.ETH_SYMBOL;
+    String networkFee = currencyFormatUtils.formatTransferCurrency(
+        BalanceUtils.weiToEth(gasPrice.multiply(gasLimit)), WalletCurrency.ETHEREUM)
+        + " "
+        + C.ETH_SYMBOL;
     networkFeeText.setText(networkFee);
   }
 
@@ -98,21 +124,14 @@ public class ConfirmationActivity extends BaseActivity {
     return super.onCreateOptionsMenu(menu);
   }
 
-  @Override public boolean onOptionsItemSelected(MenuItem item) {
-    switch (item.getItemId()) {
-      case R.id.action_edit: {
-        viewModel.openGasSettings(ConfirmationActivity.this);
-      }
-      break;
-    }
-    return super.onOptionsItemSelected(item);
-  }
-
   private void onProgress(boolean shouldShowProgress) {
     if (shouldShowProgress) {
       hideDialog();
+      ProgressBar progressBar = new ProgressBar(this);
+      progressBar.setIndeterminateDrawable(
+          ResourcesCompat.getDrawable(getResources(), R.drawable.gradient_progress, null));
       dialog = new AlertDialog.Builder(this).setTitle(R.string.title_dialog_sending)
-          .setView(new ProgressBar(this))
+          .setView(progressBar)
           .setCancelable(false)
           .create();
       dialog.show();
@@ -132,6 +151,7 @@ public class ConfirmationActivity extends BaseActivity {
   private void onTransaction(PendingTransaction transaction) {
     Log.d(TAG, "onTransaction() called with: transaction = [" + transaction + "]");
     if (!transaction.isPending()) {
+      viewModel.progressFinished();
       hideDialog();
       dialog = new AlertDialog.Builder(this).setTitle(R.string.transaction_succeeded)
           .setMessage(transaction.getHash())
@@ -140,8 +160,11 @@ public class ConfirmationActivity extends BaseActivity {
           .setNeutralButton(R.string.copy, (dialog1, id) -> {
             ClipboardManager clipboard =
                 (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-            ClipData clip = ClipData.newPlainText("transaction transaction", transaction.getHash());
-            clipboard.setPrimaryClip(clip);
+            if (clipboard != null) {
+              ClipData clip =
+                  ClipData.newPlainText("transaction transaction", transaction.getHash());
+              clipboard.setPrimaryClip(clip);
+            }
             successFinish(transaction.getHash());
           })
           .create();
@@ -167,17 +190,13 @@ public class ConfirmationActivity extends BaseActivity {
     dialog.show();
   }
 
-  @Override protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-    if (requestCode == GasSettingsViewModel.SET_GAS_SETTINGS) {
-      if (resultCode == RESULT_OK) {
-        viewModel.setGasSettings(intent.getParcelableExtra(EXTRA_GAS_SETTINGS));
-      }
-    }
-  }
-
   @Override protected void onResume() {
     super.onResume();
-
-    viewModel.init(getIntent().getParcelableExtra(EXTRA_TRANSACTION_BUILDER));
+    TransactionBuilder transactionBuilder =
+        getIntent().getParcelableExtra(EXTRA_TRANSACTION_BUILDER);
+    if (transactionBuilder != null) {
+      viewModel.init(transactionBuilder);
+    }
+    sendPageViewEvent();
   }
 }

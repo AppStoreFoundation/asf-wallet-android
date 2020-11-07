@@ -1,18 +1,20 @@
 package com.asfoundation.wallet.ui;
 
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProviders;
 import com.asf.wallet.R;
 import com.asfoundation.wallet.C;
 import com.asfoundation.wallet.entity.GasSettings;
 import com.asfoundation.wallet.entity.NetworkInfo;
 import com.asfoundation.wallet.util.BalanceUtils;
+import com.asfoundation.wallet.util.CurrencyFormatUtils;
+import com.asfoundation.wallet.util.WalletCurrency;
 import com.asfoundation.wallet.viewmodel.GasSettingsViewModel;
 import com.asfoundation.wallet.viewmodel.GasSettingsViewModelFactory;
 import dagger.android.AndroidInjection;
@@ -24,7 +26,7 @@ public class GasSettingsActivity extends BaseActivity {
 
   @Inject GasSettingsViewModelFactory viewModelFactory;
   GasSettingsViewModel viewModel;
-
+  private CurrencyFormatUtils currencyFormatUtils;
   private TextView gasPriceText;
   private TextView gasLimitText;
   private TextView networkFeeText;
@@ -39,6 +41,7 @@ public class GasSettingsActivity extends BaseActivity {
     setContentView(R.layout.activity_gas_settings);
     toolbar();
 
+    currencyFormatUtils = CurrencyFormatUtils.Companion.create();
     SeekBar gasPriceSlider = findViewById(R.id.gas_price_slider);
     SeekBar gasLimitSlider = findViewById(R.id.gas_limit_slider);
     gasPriceText = findViewById(R.id.gas_price_text);
@@ -116,11 +119,24 @@ public class GasSettingsActivity extends BaseActivity {
         .setValue(gasLimit);
   }
 
+  @Override public boolean onOptionsItemSelected(MenuItem item) {
+    if (item.getItemId() == R.id.action_save) {
+      Intent intent = new Intent();
+      intent.putExtra(C.EXTRA_GAS_SETTINGS, new GasSettings(new BigDecimal(viewModel.gasPrice()
+          .getValue()), new BigDecimal(viewModel.gasLimit()
+          .getValue())));
+      setResult(RESULT_OK, intent);
+      finish();
+    }
+    return super.onOptionsItemSelected(item);
+  }
+
   @Override public void onResume() {
 
     super.onResume();
 
     viewModel.prepare();
+    sendPageViewEvent();
   }
 
   private void onDefaultNetwork(NetworkInfo network) {
@@ -131,8 +147,12 @@ public class GasSettingsActivity extends BaseActivity {
   }
 
   private void onGasPrice(BigInteger price) {
-    String priceStr = BalanceUtils.weiToGwei(new BigDecimal(price)) + " " + C.GWEI_UNIT;
-    gasPriceText.setText(priceStr);
+    BigDecimal priceStr = BalanceUtils.weiToGwei(new BigDecimal(price));
+    String formattedPrice =
+        currencyFormatUtils.formatTransferCurrency(priceStr, WalletCurrency.ETHEREUM)
+            + " "
+            + C.GWEI_UNIT;
+    gasPriceText.setText(formattedPrice);
 
     updateNetworkFee();
   }
@@ -144,29 +164,16 @@ public class GasSettingsActivity extends BaseActivity {
   }
 
   private void updateNetworkFee() {
-    String fee = BalanceUtils.weiToEth(viewModel.networkFee())
-        .toPlainString() + " " + C.ETH_SYMBOL;
-    networkFeeText.setText(fee);
+    BigDecimal fee = BalanceUtils.weiToEth(viewModel.networkFee());
+    String formattedFee = currencyFormatUtils.formatTransferCurrency(fee, WalletCurrency.ETHEREUM)
+        + " "
+        + C.ETH_SYMBOL;
+    networkFeeText.setText(formattedFee);
   }
 
   @Override public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.send_settings_menu, menu);
 
     return super.onCreateOptionsMenu(menu);
-  }
-
-  @Override public boolean onOptionsItemSelected(MenuItem item) {
-    switch (item.getItemId()) {
-      case R.id.action_save: {
-        Intent intent = new Intent();
-        intent.putExtra(C.EXTRA_GAS_SETTINGS, new GasSettings(new BigDecimal(viewModel.gasPrice()
-            .getValue()), new BigDecimal(viewModel.gasLimit()
-            .getValue())));
-        setResult(RESULT_OK, intent);
-        finish();
-      }
-      break;
-    }
-    return super.onOptionsItemSelected(item);
   }
 }

@@ -1,20 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:fillViewport="true"
     >
-  <android.support.constraint.ConstraintLayout
+  <androidx.constraintlayout.widget.ConstraintLayout
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
+      android:layout_height="wrap_content"
       android:clipChildren="false"
       android:clipToPadding="false"
-      android:paddingBottom="40dp"
-      android:paddingEnd="@dimen/big_margin"
       android:paddingStart="@dimen/big_margin"
       android:paddingTop="40dp"
+      android:paddingEnd="@dimen/big_margin"
+      android:paddingBottom="40dp"
       >
     <TextView
         android:id="@+id/title"
@@ -57,8 +56,8 @@
         android:id="@+id/refresh_btn"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        android:layout_marginEnd="24dp"
         android:layout_marginStart="16dp"
+        android:layout_marginEnd="24dp"
         android:background="@android:color/transparent"
         android:drawableStart="@drawable/ic_refresh"
         android:padding="4dp"
@@ -67,7 +66,7 @@
         app:layout_constraintTop_toTopOf="@id/captcha_img"
         />
 
-    <android.support.design.widget.TextInputLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/captcha_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -79,30 +78,29 @@
         app:layout_constraintTop_toBottomOf="@id/captcha_img"
         >
 
-      <android.support.design.widget.TextInputEditText
+      <com.google.android.material.textfield.TextInputEditText
           android:id="@+id/answer_text"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:hint="@string/activity_airdrop_hint"
-          android:textColorHighlight="@color/grey_6b_alpha"
-          android:textColorHint="@color/grey_6b_alpha"
+          android:imeOptions="flagNoExtractUi|flagNoFullscreen"
+          android:textColorHighlight="@color/grey_alpha_6b"
+          android:textColorHint="@color/grey_alpha_6b"
           android:textSize="16sp"
           />
 
-    </android.support.design.widget.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
     <Button
         android:id="@+id/submit_btn"
+        style="@style/ButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/button_height"
         android:enabled="false"
-        android:paddingEnd="@dimen/big_margin"
-        android:paddingStart="@dimen/big_margin"
         android:text="@string/activity_airdrop_submit_btn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/captcha_text"
-        style="@style/ButtonStyle"
         />
 
-  </android.support.constraint.ConstraintLayout>
+  </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

@@ -25,6 +25,7 @@ gen/
 .gradle/
 /build
 app/release
+app/debug
 
 # Fastlane
 fastlane/report.xml
@@ -43,3 +44,4 @@ proguard/
 
 ### Android Patch ###
 gen-external-apklibs
+/app/google-services.json
