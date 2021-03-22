@@ -1,7 +1,6 @@
 package com.asfoundation.wallet.transactions;
 
-import android.support.annotation.Nullable;
-import com.asfoundation.wallet.entity.RawTransaction;
+import androidx.annotation.Nullable;import com.asfoundation.wallet.entity.RawTransaction;
 import com.asfoundation.wallet.entity.TransactionOperation;
 import com.asfoundation.wallet.interact.DefaultTokenProvider;
 import com.asfoundation.wallet.ui.iab.AppcoinsOperationsDataSaver;

@@ -1,12 +1,16 @@
 package com.asfoundation.wallet.ui.iab.database;
 
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.PrimaryKey;
-import android.support.annotation.NonNull;
 
-@Entity public class AppCoinsOperationEntity {
-  @NonNull @PrimaryKey @ColumnInfo(name = "key") private final String key;
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+@Entity
+public class AppCoinsOperationEntity {
+  @NonNull
+  @PrimaryKey
+  @ColumnInfo(name = "key") private final String key;
   @NonNull @ColumnInfo(name = "transaction_id") private final String transactionId;
   @NonNull @ColumnInfo(name = "package_name") private final String packageName;
   @NonNull @ColumnInfo(name = "application_name") private final String applicationName;

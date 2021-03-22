@@ -1,8 +1,10 @@
 package com.asfoundation.wallet.util;
 
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
+
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;

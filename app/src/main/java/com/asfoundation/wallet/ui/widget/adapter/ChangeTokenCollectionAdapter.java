@@ -1,7 +1,9 @@
 package com.asfoundation.wallet.ui.widget.adapter;
 
-import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
+
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.asf.wallet.R;
 import com.asfoundation.wallet.entity.Token;
 import com.asfoundation.wallet.ui.widget.OnTokenClickListener;

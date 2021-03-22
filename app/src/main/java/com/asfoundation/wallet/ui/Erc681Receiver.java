@@ -2,8 +2,7 @@ package com.asfoundation.wallet.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import com.asfoundation.wallet.interact.FindDefaultWalletInteract;
+import androidx.annotation.Nullable;import com.asfoundation.wallet.interact.FindDefaultWalletInteract;
 import com.asfoundation.wallet.ui.iab.IabActivity;
 import dagger.android.AndroidInjection;
 import javax.inject.Inject;

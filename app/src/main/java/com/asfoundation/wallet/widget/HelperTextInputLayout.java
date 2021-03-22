@@ -3,18 +3,20 @@ package com.asfoundation.wallet.widget;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
-import android.support.design.widget.TextInputLayout;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.view.ViewPropertyAnimatorListenerAdapter;
-import android.support.v4.view.animation.FastOutSlowInInterpolator;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.ViewPropertyAnimatorListenerAdapter;
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
+
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Interpolator;
 import android.widget.EditText;
 import android.widget.TextView;
 import com.asf.wallet.R;
+import com.google.android.material.textfield.TextInputLayout;
 
 /**
  * TextInputLayout temporary workaround for helper text showing
@@ -97,9 +99,13 @@ public class HelperTextInputLayout extends TextInputLayout {
         }
         this.mHelperView.setVisibility(INVISIBLE);
         this.addView(this.mHelperView);
-        if (this.mHelperView != null) {
-          ViewCompat.setPaddingRelative(this.mHelperView, ViewCompat.getPaddingStart(getEditText()),
-              0, ViewCompat.getPaddingEnd(getEditText()), getEditText().getPaddingBottom());
+        try {
+          if (this.mHelperView != null) {
+            ViewCompat.setPaddingRelative(this.mHelperView, ViewCompat.getPaddingStart(getEditText()),
+                    0, ViewCompat.getPaddingEnd(getEditText()), getEditText().getPaddingBottom());
+          }
+        }catch (Exception ex){
+          Log.e("HelperTextInputLayout", "Error setting padding");
         }
       } else {
         this.removeView(this.mHelperView);

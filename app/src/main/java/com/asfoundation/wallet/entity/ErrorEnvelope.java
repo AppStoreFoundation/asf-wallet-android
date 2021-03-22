@@ -1,12 +1,14 @@
 package com.asfoundation.wallet.entity;
 
-import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+
 import com.asfoundation.wallet.C;
 
 public class ErrorEnvelope {
   public final int code;
-  @Nullable public final String message;
+  @Nullable
+  public final String message;
   @Nullable private final Throwable throwable;
 
   public ErrorEnvelope(@Nullable String message) {

@@ -1,8 +1,11 @@
 package com.asfoundation.wallet.viewmodel;
 
 import android.app.Activity;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
+
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 import android.content.Context;
 import android.text.TextUtils;
 import com.asfoundation.wallet.C;
@@ -18,7 +21,6 @@ import com.asfoundation.wallet.interact.FindDefaultWalletInteract;
 import com.asfoundation.wallet.interact.SetDefaultWalletInteract;
 import com.asfoundation.wallet.router.ImportWalletRouter;
 import com.asfoundation.wallet.router.TransactionsRouter;
-import com.crashlytics.android.Crashlytics;
 
 import static com.asfoundation.wallet.C.IMPORT_REQUEST_CODE;
 
@@ -147,14 +149,12 @@ public class WalletsViewModel extends BaseViewModel {
   }
 
   private void onExportWalletError(Throwable throwable) {
-    Crashlytics.logException(throwable);
     exportWalletError.postValue(new ErrorEnvelope(C.ErrorCode.UNKNOWN,
         TextUtils.isEmpty(throwable.getLocalizedMessage()) ? throwable.getMessage()
             : throwable.getLocalizedMessage()));
   }
 
   private void onDeleteWalletError(Throwable throwable) {
-    Crashlytics.logException(throwable);
     deleteWalletError.postValue(new ErrorEnvelope(C.ErrorCode.UNKNOWN,
         TextUtils.isEmpty(throwable.getLocalizedMessage()) ? throwable.getMessage()
             : throwable.getLocalizedMessage()));
@@ -162,7 +162,6 @@ public class WalletsViewModel extends BaseViewModel {
 
   private void onCreateWalletError(Throwable throwable) {
     throwable.printStackTrace();
-    Crashlytics.logException(throwable);
     progress.postValue(false);
     createWalletError.postValue(new ErrorEnvelope(C.ErrorCode.UNKNOWN, throwable.getMessage()));
   }

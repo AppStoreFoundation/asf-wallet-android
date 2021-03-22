@@ -55,7 +55,7 @@
 
     <activity
         android:name="com.asfoundation.wallet.ui.SendActivity"
-        android:label="@string/title_activity_send"></activity>
+        android:label="@string/title_activity_send" />
 
     <activity
         android:name="com.asfoundation.wallet.ui.ConfirmationActivity"
@@ -95,9 +95,9 @@
         android:label="@string/title_airdrop"
         android:screenOrientation="portrait"/>
 
-    <meta-data
-        android:name="io.fabric.ApiKey"
-        android:value="${fabricApiKey}"/>
+<!--    <meta-data-->
+<!--        android:name="io.fabric.ApiKey"-->
+<!--        android:value="${fabricApiKey}"/>-->
 
     <service
         android:name="com.asfoundation.wallet.advertise.WalletPoAService"

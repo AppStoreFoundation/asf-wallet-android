@@ -2,11 +2,13 @@ package com.asfoundation.wallet.widget;
 
 import android.content.Context;
 import android.net.Uri;
-import android.support.annotation.LayoutRes;
-import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
+
+import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
+
 import com.asf.wallet.R;
 import com.asfoundation.wallet.entity.Wallet;
 import com.asfoundation.wallet.ui.widget.OnDepositClickListener;
