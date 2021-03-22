@@ -1,94 +1,99 @@
 package com.asfoundation.wallet;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.reactivex.Completable;
+import io.reactivex.CompletableSource;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.subjects.BehaviorSubject;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Airdrop {
 
-  private final TransactionService transactionService;
-  private final BehaviorSubject<AirdropData> airdropResponse;
-  private final AirdropService airdropService;
-  private Disposable disposable;
+    private final TransactionService transactionService;
+    private final BehaviorSubject<AirdropData> airdropResponse;
+    private final AirdropService airdropService;
+    private Disposable disposable;
 
-  public Airdrop(TransactionService transactionService,
-      BehaviorSubject<AirdropData> airdropResponse, AirdropService airdropService) {
-    this.transactionService = transactionService;
-    this.airdropResponse = airdropResponse;
-    this.airdropService = airdropService;
-  }
-
-  public void request(String walletAddress, int chainId, String captchaAnswer) {
-    disposable = airdropService.requestAirdrop(walletAddress, chainId, captchaAnswer)
-        .doOnSubscribe(
-            __ -> airdropResponse.onNext(new AirdropData(AirdropData.AirdropStatus.PENDING)))
-        .flatMapCompletable(airDropResponse -> {
-          switch (airDropResponse.getStatus()) {
-            case WRONG_CAPTCHA:
-              return Completable.fromAction(() -> publishCaptchaError());
-            default:
-            case OK:
-              return waitForTransactions(airDropResponse);
-            case FAIL:
-              return Completable.fromAction(() -> publishApiError(airDropResponse));
-          }
-        })
-        .subscribe(() -> {
-        }, throwable -> publish(AirdropData.AirdropStatus.ERROR));
-  }
-
-  public void stop() {
-    if (disposable != null && !disposable.isDisposed()) {
-      disposable.dispose();
+    public Airdrop(TransactionService transactionService,
+                   BehaviorSubject<AirdropData> airdropResponse, AirdropService airdropService) {
+        this.transactionService = transactionService;
+        this.airdropResponse = airdropResponse;
+        this.airdropService = airdropService;
     }
-  }
 
-  private Completable waitForTransactions(AirdropService.AirDropResponse airDropResponse) {
-    return Single.fromCallable(() -> {
-      List<Completable> list = new ArrayList<>();
-      list.add(
-          transactionService.waitForTransactionToComplete(airDropResponse.getAppcoinsTransaction(),
-              airDropResponse.getChainId()));
-      list.add(transactionService.waitForTransactionToComplete(airDropResponse.getEthTransaction(),
-          airDropResponse.getChainId()));
-      return list;
-    })
-        .flatMapCompletable(list -> Completable.merge(list)
-            .andThen(Completable.fromAction(() -> airdropResponse.onNext(
-                new AirdropData(AirdropData.AirdropStatus.SUCCESS, airDropResponse.getDescription(),
-                    airDropResponse.getChainId())))));
-  }
+    public void request(String walletAddress, int chainId, String captchaAnswer) {
+        disposable = airdropService.requestAirdrop(walletAddress, chainId, captchaAnswer)
+                .doOnSubscribe(
+                        __ -> airdropResponse.onNext(new AirdropData(AirdropData.AirdropStatus.PENDING)))
+                .flatMapCompletable(airDropResponse -> {
+                    switch (airDropResponse.getStatus()) {
+                        case WRONG_CAPTCHA:
+                            return Completable.fromAction(() -> publishCaptchaError());
+                        default:
+                        case OK:
+                            return null;
+//                                    waitForTransactions(airDropResponse);
+                        case FAIL:
+                            return Completable.fromAction(() -> publishApiError(airDropResponse));
+                    }
+                })
+                .subscribe(() -> {
+                }, throwable -> publish(AirdropData.AirdropStatus.ERROR));
+    }
 
-  private void publishCaptchaError() {
-    publish(AirdropData.AirdropStatus.CAPTCHA_ERROR);
-  }
+    public void stop() {
+        if (disposable != null && !disposable.isDisposed()) {
+            disposable.dispose();
+        }
+    }
 
-  private void publishApiError(AirdropService.AirDropResponse airDropResponse) {
-    publish(AirdropData.AirdropStatus.API_ERROR, airDropResponse.getDescription());
-  }
+//    private Completable waitForTransactions(AirdropService.AirDropResponse airDropResponse) {
+//        return Single.fromCallable(() -> {
+//            List<Completable> list = new ArrayList<>();
+//            list.add(
+//                    transactionService.waitForTransactionToComplete(airDropResponse.getAppcoinsTransaction(),
+//                            airDropResponse.getChainId()));
+//            list.add(transactionService.waitForTransactionToComplete(airDropResponse.getEthTransaction(),
+//                    airDropResponse.getChainId()));
+//            return list;
+//        })
+//                .toObservable()
+//                .flatMapIterable(items -> items)
+//                .flatMapCompletable(list -> Completable.merge((Iterable<? extends CompletableSource>) list)
+//                        .andThen(Completable.fromAction(() -> airdropResponse.onNext(
+//                                new AirdropData(AirdropData.AirdropStatus.SUCCESS, airDropResponse.getDescription(),
+//                                        airDropResponse.getChainId())))));
+//    }
 
-  private void publish(AirdropData.AirdropStatus status, String description) {
-    airdropResponse.onNext(new AirdropData(status, description));
-  }
+    private void publishCaptchaError() {
+        publish(AirdropData.AirdropStatus.CAPTCHA_ERROR);
+    }
 
-  private void publish(AirdropData.AirdropStatus status) {
-    airdropResponse.onNext(new AirdropData(status));
-  }
+    private void publishApiError(AirdropService.AirDropResponse airDropResponse) {
+        publish(AirdropData.AirdropStatus.API_ERROR, airDropResponse.getDescription());
+    }
 
-  public Observable<AirdropData> getStatus() {
-    return airdropResponse.filter(
-        airdropData -> airdropData.getStatus() != AirdropData.AirdropStatus.UNDEFINED);
-  }
+    private void publish(AirdropData.AirdropStatus status, String description) {
+        airdropResponse.onNext(new AirdropData(status, description));
+    }
 
-  public void resetState() {
-    airdropResponse.onNext(new AirdropData(AirdropData.AirdropStatus.UNDEFINED));
-  }
+    private void publish(AirdropData.AirdropStatus status) {
+        airdropResponse.onNext(new AirdropData(status));
+    }
 
-  public Single<String> requestCaptcha(String walletAddress) {
-    return airdropService.requestCaptcha(walletAddress);
-  }
+    public Observable<AirdropData> getStatus() {
+        return airdropResponse.filter(
+                airdropData -> airdropData.getStatus() != AirdropData.AirdropStatus.UNDEFINED);
+    }
+
+    public void resetState() {
+        airdropResponse.onNext(new AirdropData(AirdropData.AirdropStatus.UNDEFINED));
+    }
+
+    public Single<String> requestCaptcha(String walletAddress) {
+        return airdropService.requestCaptcha(walletAddress);
+    }
 }

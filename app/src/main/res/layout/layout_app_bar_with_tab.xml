@@ -1,25 +1,23 @@
-<android.support.design.widget.AppBarLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.appbar.AppBarLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/app_bar"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:theme="@style/AppTheme.AppBarOverlay"
     android:background="@drawable/appbar_background_color"
-    >
-  <android.support.v7.widget.Toolbar
-      android:id="@+id/toolbar"
-      android:layout_width="match_parent"
-      android:layout_height="?attr/actionBarSize"
-      android:elevation="8dp"
-      app:popupTheme="@style/AppTheme.PopupOverlay"
-      />
-  <android.support.design.widget.TabLayout
-      android:id="@+id/tabLayout"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:elevation="8dp"
-      app:tabIndicatorColor="@color/white"
-      style="@style/TabLayoutStyle"
-      />
-</android.support.design.widget.AppBarLayout>
+    android:theme="@style/AppTheme.AppBarOverlay">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:elevation="8dp"
+        app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayout"
+        style="@style/TabLayoutStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:elevation="8dp"
+        app:tabIndicatorColor="@color/white" />
+</com.google.android.material.appbar.AppBarLayout>

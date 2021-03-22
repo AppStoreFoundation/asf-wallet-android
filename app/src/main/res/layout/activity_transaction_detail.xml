@@ -35,7 +35,7 @@
         />
   </FrameLayout>
 
-  <android.support.v4.widget.NestedScrollView
+  <androidx.core.widget.NestedScrollView
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:fillViewport="true"
@@ -185,25 +185,24 @@
           style="@style/TransactionDetailsTextStyle"
           />
 
-      <android.support.v7.widget.RecyclerView
+      <androidx.recyclerview.widget.RecyclerView
           android:id="@+id/details_list"
           android:layout_width="match_parent"
           android:layout_height="@dimen/transaction_details_height"
-          android:layout_marginBottom="40dp"
           android:layout_marginTop="@dimen/big_margin"
+          android:layout_marginBottom="40dp"
           android:clipChildren="false"
           android:clipToPadding="false"
+          android:nestedScrollingEnabled="false"
           android:orientation="horizontal"
-          android:paddingEnd="@dimen/small_padding"
           android:paddingStart="@dimen/small_padding"
+          android:paddingEnd="@dimen/small_padding"
           app:layoutManager="android.support.v7.widget.LinearLayoutManager"
           app:layout_constraintBottom_toTopOf="@+id/logo"
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintStart_toStartOf="parent"
           app:layout_constraintTop_toBottomOf="@id/details_label"
-          app:layout_constraintVertical_bias="0.0"
-          android:nestedScrollingEnabled="false"
-          />
+          app:layout_constraintVertical_bias="0.0" />
 
       <ImageView
           android:id="@+id/logo"
@@ -234,5 +233,5 @@
           style="@style/TransactionDetailsTextStyle.Footer"
           />
     </android.support.constraint.ConstraintLayout>
-  </android.support.v4.widget.NestedScrollView>
+  </androidx.core.widget.NestedScrollView>
 </android.support.design.widget.CoordinatorLayout>

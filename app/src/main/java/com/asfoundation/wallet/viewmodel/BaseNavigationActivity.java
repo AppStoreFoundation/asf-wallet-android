@@ -1,11 +1,13 @@
 package com.asfoundation.wallet.viewmodel;
 
-import android.support.annotation.MenuRes;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomNavigationView;
 import android.view.MenuItem;
+
+import androidx.annotation.MenuRes;
+import androidx.annotation.NonNull;
+
 import com.asf.wallet.R;
 import com.asfoundation.wallet.ui.BaseActivity;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class BaseNavigationActivity extends BaseActivity
     implements BottomNavigationView.OnNavigationItemSelectedListener {

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<androidx.constraintlayout.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/screen_view"
     android:layout_width="296dp"
@@ -13,5 +13,5 @@
   <include layout="@layout/iab_activity_error"/>
   <include layout="@layout/iab_activity_buy"/>
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.ConstraintLayout>
 

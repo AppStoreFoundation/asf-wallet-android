@@ -1,14 +1,15 @@
 package com.asfoundation.wallet.viewmodel;
 
 import android.app.Activity;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
+
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
 import com.asfoundation.wallet.entity.GasSettings;
 import com.asfoundation.wallet.entity.PendingTransaction;
 import com.asfoundation.wallet.entity.TransactionBuilder;
 import com.asfoundation.wallet.interact.SendTransactionInteract;
 import com.asfoundation.wallet.router.GasSettingsRouter;
-import com.crashlytics.android.Crashlytics;
 
 public class ConfirmationViewModel extends BaseViewModel {
   private final MutableLiveData<TransactionBuilder> transactionBuilder = new MutableLiveData<>();
@@ -66,6 +67,5 @@ public class ConfirmationViewModel extends BaseViewModel {
 
   @Override protected void onError(Throwable throwable) {
     super.onError(throwable);
-    Crashlytics.logException(throwable);
   }
 }

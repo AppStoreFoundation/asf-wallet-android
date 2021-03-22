@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:fillViewport="true"
     >
-  <android.support.constraint.ConstraintLayout
+  <androidx.constraintlayout.ConstraintLayout
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:clipChildren="false"
@@ -104,5 +104,5 @@
         style="@style/ButtonStyle"
         />
 
-  </android.support.constraint.ConstraintLayout>
+  </androidx.constraintlayout.ConstraintLayout>
 </ScrollView>

@@ -1,10 +1,10 @@
 package com.asfoundation.wallet.ui.widget.holder;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
-import android.text.TextUtils;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -77,7 +77,7 @@ public class TransactionDetailsHolder extends BinderViewHolder<Operation>
   }
 
   private void fill(String transactionId, @StringRes int peerLabel, String peerAddress,
-      String fee) {
+                    String fee) {
     this.transactionId.setText(transactionId);
     this.peerLabel.setText(peerLabel);
     this.peerAddress.setText(peerAddress);

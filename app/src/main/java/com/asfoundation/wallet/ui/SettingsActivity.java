@@ -5,15 +5,17 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import com.asf.wallet.R;
 import com.asfoundation.wallet.router.TransactionsRouter;
+import javax.inject.Inject;
+
 import dagger.android.AndroidInjection;
 import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
-import dagger.android.HasFragmentInjector;
-import javax.inject.Inject;
 
-public class SettingsActivity extends BaseActivity implements HasFragmentInjector {
 
-  @Inject DispatchingAndroidInjector<Fragment> fragmentInjector;
+public class SettingsActivity extends BaseActivity {
+
+  @Inject
+  DispatchingAndroidInjector<Fragment> fragmentInjector;
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     AndroidInjection.inject(this);
@@ -42,7 +44,4 @@ public class SettingsActivity extends BaseActivity implements HasFragmentInjecto
     finish();
   }
 
-  @Override public AndroidInjector<android.app.Fragment> fragmentInjector() {
-    return fragmentInjector;
-  }
 }

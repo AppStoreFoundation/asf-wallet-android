@@ -3,13 +3,14 @@ package com.asfoundation.wallet.widget;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
-import android.os.Parcelable;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.animation.Interpolator;
+
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
+
+import com.google.android.material.appbar.AppBarLayout;
 
 /**
  * Created by Joao Raimundo on 20/05/2018.

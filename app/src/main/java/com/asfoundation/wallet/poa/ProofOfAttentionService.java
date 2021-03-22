@@ -1,6 +1,6 @@
 package com.asfoundation.wallet.poa;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import com.asfoundation.wallet.repository.Repository;
 import io.reactivex.Completable;
 import io.reactivex.Observable;

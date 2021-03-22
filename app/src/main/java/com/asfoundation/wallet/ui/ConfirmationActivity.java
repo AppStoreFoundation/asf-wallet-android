@@ -1,15 +1,17 @@
 package com.asfoundation.wallet.ui;
 
 import android.app.Activity;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProviders;
+
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -135,7 +137,7 @@ public class ConfirmationActivity extends BaseActivity {
       hideDialog();
       dialog = new AlertDialog.Builder(this).setTitle(R.string.transaction_succeeded)
           .setMessage(transaction.getHash())
-          .setPositiveButton(R.string.button_ok,
+          .setPositiveButton(android.R.string.ok,
               (dialog1, id) -> successFinish(transaction.getHash()))
           .setNeutralButton(R.string.copy, (dialog1, id) -> {
             ClipboardManager clipboard =
@@ -160,7 +162,7 @@ public class ConfirmationActivity extends BaseActivity {
     hideDialog();
     AlertDialog dialog = new AlertDialog.Builder(this).setTitle(R.string.error_transaction_failed)
         .setMessage(error.message)
-        .setPositiveButton(R.string.button_ok, (dialog1, id) -> {
+        .setPositiveButton(android.R.string.ok, (dialog1, id) -> {
           // Do nothing
         })
         .create();
@@ -168,6 +170,7 @@ public class ConfirmationActivity extends BaseActivity {
   }
 
   @Override protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+    super.onActivityResult(requestCode, resultCode, intent);
     if (requestCode == GasSettingsViewModel.SET_GAS_SETTINGS) {
       if (resultCode == RESULT_OK) {
         viewModel.setGasSettings(intent.getParcelableExtra(EXTRA_GAS_SETTINGS));

@@ -1,8 +1,9 @@
 package com.asfoundation.wallet.viewmodel;
 
-import android.arch.lifecycle.ViewModel;
-import android.arch.lifecycle.ViewModelProvider;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
+
 import com.asfoundation.wallet.interact.ImportWalletInteract;
 
 public class ImportWalletViewModelFactory implements ViewModelProvider.Factory {

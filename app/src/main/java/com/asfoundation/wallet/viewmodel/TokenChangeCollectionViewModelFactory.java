@@ -1,8 +1,9 @@
 package com.asfoundation.wallet.viewmodel;
 
-import android.arch.lifecycle.ViewModel;
-import android.arch.lifecycle.ViewModelProvider;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
+
 import com.asfoundation.wallet.interact.ChangeTokenEnableInteract;
 import com.asfoundation.wallet.interact.DeleteTokenInteract;
 import com.asfoundation.wallet.interact.FetchAllTokenInfoInteract;
@@ -21,7 +22,8 @@ public class TokenChangeCollectionViewModelFactory implements ViewModelProvider.
     this.changeTokenEnableInteract = changeTokenEnableInteract;
   }
 
-  @NonNull @Override public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
+  @NonNull
+  @Override public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
     return (T) new TokenChangeCollectionViewModel(fetchAllTokenInfoInteract,
         changeTokenEnableInteract, deleteTokenInteract);
   }

@@ -1,7 +1,6 @@
 package com.asfoundation.wallet.entity;
 
-import android.support.annotation.Nullable;
-
+import androidx.annotation.Nullable;
 public class ServiceErrorException extends Exception {
 
   public static final int UNKNOWN_ERROR = -1;

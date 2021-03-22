@@ -1,9 +1,9 @@
 apply plugin: 'java-library'
 
 
-repositories {
-  maven { url 'https://maven.fabric.io/public' }
-}
+//repositories {
+//  maven { url 'https://maven.fabric.io/public' }
+//}
 
 dependencies {
   implementation fileTree(dir: 'libs', include: ['*.jar'])

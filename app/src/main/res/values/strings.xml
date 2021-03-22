@@ -180,7 +180,6 @@
   <string name="label_gas_limit">Gas Limit</string>
   <string name="label_gas_price">Gas Price</string>
   <string name="label_network_fee">Network Fee</string>
-  <string name="button_ok">OK</string>
   <string name="hint_recipient_address">Recipient address</string>
   <string name="hint_amount">Amount</string>
   <string name="hint_contract_address">Contract address</string>
